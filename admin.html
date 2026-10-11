@@ -10,6 +10,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <script>
+    // 2. Hilangkan .html dari URL browser tanpa reload
+    if (window.location.pathname.endsWith('.html')) {
+      const cleanPath = window.location.pathname.replace(/\.html$/, '');
+      window.history.replaceState(null, '', cleanPath + window.location.search + window.location.hash);
+    }
+  </script>
   
   <style>
     :root {
@@ -45,11 +53,151 @@
       min-height: 100vh;
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
     a { color: inherit; text-decoration: none; }
     button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
     input, select, textarea { font: inherit; }
+
+    /* ============================================================
+       3. HALAMAN LOGIN ADMIN (PASSWORD ONLY: @A7x4ever)
+       ============================================================ */
+    #login-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: radial-gradient(circle at 50% 20%, rgba(207, 128, 71, 0.08), transparent 50%), #09090b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+    #login-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .login-box {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(24, 24, 28, 0.85);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem 2rem;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .login-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+    .login-logo {
+      width: 3.5rem;
+      height: 3.5rem;
+      margin: 0 auto 1.25rem;
+      border-radius: 1rem;
+      background: #000;
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    }
+    .login-logo svg { width: 2rem; height: 2rem; }
+    .login-box h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.35rem;
+    }
+    .login-box p {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-bottom: 1.75rem;
+    }
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      text-align: left;
+    }
+    .input-wrapper {
+      position: relative;
+    }
+    .login-input {
+      width: 100%;
+      background: rgba(18, 18, 21, 0.9);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 0.85rem 3rem 0.85rem 1rem;
+      color: var(--text);
+      font-size: 0.9375rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .login-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .btn-toggle-pwd {
+      position: absolute;
+      right: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      padding: 0.35rem;
+      display: grid;
+      place-items: center;
+      transition: color 0.2s;
+    }
+    .btn-toggle-pwd:hover {
+      color: var(--text);
+    }
+    .login-error {
+      color: var(--red);
+      font-size: 0.75rem;
+      margin-top: -0.25rem;
+      min-height: 1.2rem;
+      display: none;
+    }
+    .login-error.show {
+      display: block;
+      animation: shake 0.35s ease-in-out;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+    .btn-submit-login {
+      width: 100%;
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius-lg);
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+    .btn-submit-login:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
 
     /* Layout Shell */
     .dashboard-shell {
@@ -192,52 +340,6 @@
       color: var(--text);
     }
 
-    /* Supabase Alert Banner */
-    .supabase-banner {
-      background: linear-gradient(135deg, rgba(207, 128, 71, 0.15), rgba(24, 24, 28, 0.8));
-      border: 1px solid var(--border-accent);
-      border-radius: var(--radius-lg);
-      padding: 1.25rem 1.5rem;
-      margin-bottom: 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
-    .supabase-banner-left {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    .banner-icon {
-      width: 2.75rem;
-      height: 2.75rem;
-      border-radius: 0.75rem;
-      background: var(--accent);
-      color: #000;
-      display: grid;
-      place-items: center;
-      flex-shrink: 0;
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
-    .supabase-banner h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 0.2rem;
-    }
-    .supabase-banner p {
-      font-size: 0.8125rem;
-      color: var(--text-muted);
-      max-width: 55ch;
-    }
-    .supabase-banner-actions {
-      display: flex;
-      gap: 0.75rem;
-      align-items: center;
-    }
-
     /* Filter Controls Bar */
     .controls-bar {
       display: flex;
@@ -280,7 +382,9 @@
       gap: 0.5rem;
     }
 
-    /* KPI Summary Cards Grid */
+    /* ============================================================
+       4. KPI CARDS (ANIMASI DIHILANGKAN SAAT REFRESH DATA)
+       ============================================================ */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -294,13 +398,8 @@
       padding: 1.5rem;
       position: relative;
       overflow: hidden;
-      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
       box-shadow: var(--shadow-card);
-    }
-    .kpi-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(255, 255, 255, 0.15);
-      box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.7);
+      /* Animasi transisi statis yang tenang tanpa efek lompat saat refresh */
     }
     .kpi-card-glow {
       position: absolute;
@@ -361,7 +460,7 @@
       color: var(--green);
     }
 
-    /* Charts Section (Requirement 0) */
+    /* Charts Section */
     .section-title-wrap {
       display: flex;
       align-items: center;
@@ -417,7 +516,7 @@
       height: 320px;
     }
 
-    /* Horizontal Bar Chart for Button Clicks (Requirement 1.b) */
+    /* Horizontal Bar Chart for Button Clicks */
     .clicks-breakdown-card {
       background: var(--surface-card);
       border: 1px solid var(--border);
@@ -492,7 +591,7 @@
       background: var(--accent);
     }
 
-    /* Form Leads Section (Requirement 2) */
+    /* Form Leads Section */
     .leads-card {
       background: var(--surface-card);
       border: 1px solid var(--border);
@@ -617,87 +716,7 @@
       opacity: 0.6;
     }
 
-    /* Modal SQL Setup */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 100;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(8px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-    .modal-backdrop.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    .modal-box {
-      width: 100%;
-      max-width: 680px;
-      max-height: 90vh;
-      background: var(--surface);
-      border: 1px solid var(--border-accent);
-      border-radius: var(--radius-xl);
-      padding: 2rem;
-      overflow-y: auto;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
-      transform: translateY(20px);
-      transition: transform 0.3s ease;
-    }
-    .modal-backdrop.open .modal-box {
-      transform: translateY(0);
-    }
-    .modal-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1.25rem;
-    }
-    .modal-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
-    .code-block-wrap {
-      position: relative;
-      margin: 1.25rem 0;
-    }
-    .code-box {
-      background: #09090b;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 1rem;
-      font-family: monospace;
-      font-size: 0.75rem;
-      color: #e4e4e7;
-      max-height: 260px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      line-height: 1.5;
-    }
-    .copy-btn-floating {
-      position: absolute;
-      top: 0.6rem;
-      right: 0.6rem;
-      background: var(--accent);
-      color: #000;
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 0.35rem 0.75rem;
-      border-radius: var(--radius-pill);
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-    .copy-btn-floating:hover {
-      background: var(--accent-hover);
-    }
-
-    /* Toast Notification */
+    /* Toast Notification (hanya untuk aksi pengguna manual seperti copy & export) */
     .toast {
       position: fixed;
       bottom: 2rem;
@@ -739,7 +758,44 @@
 </head>
 <body>
 
-  <div class="dashboard-shell">
+  <!-- ============================================================
+       3. HALAMAN LOGIN (PASSWORD: @A7x4ever)
+       ============================================================ -->
+  <div id="login-screen">
+    <div class="login-box">
+      <div class="login-logo" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+          <path fill="currentColor" stroke="none" d="M24 2c2.2 13.8 7.9 19.6 22 22-14.1 2.4-19.8 8.2-22 22-2.2-13.8-7.9-19.6-22-22 14.1-2.4 19.8-8.2 22-22Z"/>
+        </svg>
+      </div>
+      <h2>Admin Intelligence Hub</h2>
+      <p>Masukkan password admin untuk mengakses analitik dan data leads portofolio.</p>
+
+      <form class="login-form" id="admin-login-form">
+        <div class="input-wrapper">
+          <input 
+            type="password" 
+            id="admin-password-input" 
+            class="login-input" 
+            placeholder="Password..." 
+            autocomplete="current-password"
+            required
+            autofocus
+          >
+          <button type="button" class="btn-toggle-pwd" id="btn-toggle-pwd" title="Lihat/Sembunyikan password">
+            <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="login-error" id="login-error-msg">Password salah. Silakan coba lagi.</div>
+        <button type="submit" class="btn-submit-login">
+          Masuk ke Dashboard ↗
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- DASHBOARD SHELL -->
+  <div class="dashboard-shell" id="dashboard-shell">
     
     <!-- Top Navigation Bar -->
     <header class="top-nav">
@@ -759,15 +815,11 @@
         <!-- Status Indicator Pill -->
         <div class="status-pill" id="db-status-pill" title="Status Database Supabase">
           <span class="dot-live" id="status-dot"></span>
-          <span id="status-text">Memeriksa Supabase...</span>
+          <span id="status-text">Supabase Terhubung</span>
         </div>
 
-        <button class="btn btn-secondary" id="btn-open-sql-modal">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          Setup SQL Tabel
-        </button>
-
-        <button class="btn btn-secondary" id="btn-refresh" title="Muat ulang data dari Supabase">
+        <!-- 4. Tombol Refresh (Tanpa notifikasi toast dan tanpa animasi card) -->
+        <button class="btn btn-secondary" id="btn-refresh" title="Muat ulang data dari Supabase secara hening">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="refresh-icon"><path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
           Refresh
         </button>
@@ -780,25 +832,13 @@
         <a href="index.html" class="btn btn-primary" title="Buka website portofolio">
           Lihat Web ↗
         </a>
+
+        <!-- Tombol Logout -->
+        <button class="btn btn-secondary" id="btn-logout" title="Kunci / Keluar dari Dashboard Admin" style="padding: 0.5rem 0.75rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
       </div>
     </header>
-
-    <!-- Supabase Setup Banner (Conditional) -->
-    <section class="supabase-banner" id="setup-banner" style="display: none;">
-      <div class="supabase-banner-left">
-        <div class="banner-icon">⚡</div>
-        <div>
-          <h3>Hubungkan Database: Tabel 'portofolio' Belum Dibuat di Supabase</h3>
-          <p>Agar kunjungan, klik tombol, dan form tersimpan di cloud Supabase secara permanen, silakan jalankan 1x script SQL di Supabase SQL Editor.</p>
-        </div>
-      </div>
-      <div class="supabase-banner-actions">
-        <button class="btn btn-primary" id="btn-banner-sql">Buka Panduan SQL & Salin</button>
-        <a href="https://supabase.com/dashboard/project/tydixffpnhqpxtslamqm/sql/new" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
-          Buka SQL Editor ↗
-        </a>
-      </div>
-    </section>
 
     <!-- Filters & Time Controls -->
     <div class="controls-bar">
@@ -817,7 +857,7 @@
 
     <!-- KPI Summary Grid (4 Cards) -->
     <section class="kpi-grid">
-      <!-- 1. Total Kunjungan (Insight 1.a) -->
+      <!-- 1. Total Kunjungan -->
       <article class="kpi-card" style="--glow-color: rgba(84, 217, 238, 0.15); --icon-color: var(--cyan);">
         <div class="kpi-card-glow"></div>
         <div class="kpi-header">
@@ -834,7 +874,7 @@
         </div>
       </article>
 
-      <!-- 2. Total Klik Tombol (Insight 1.b) -->
+      <!-- 2. Total Klik Tombol -->
       <article class="kpi-card" style="--glow-color: rgba(207, 128, 71, 0.15); --icon-color: var(--accent);">
         <div class="kpi-card-glow"></div>
         <div class="kpi-header">
@@ -851,7 +891,7 @@
         </div>
       </article>
 
-      <!-- 3. Form Masuk (Insight 2) -->
+      <!-- 3. Form Masuk -->
       <article class="kpi-card" style="--glow-color: rgba(168, 162, 255, 0.15); --icon-color: var(--purple);">
         <div class="kpi-card-glow"></div>
         <div class="kpi-header">
@@ -886,7 +926,7 @@
       </article>
     </section>
 
-    <!-- SECTION 0: DIAGRAM BATANG UTAMA (Requirement 0) -->
+    <!-- SECTION 0: DIAGRAM BATANG UTAMA -->
     <section>
       <div class="section-title-wrap">
         <div>
@@ -927,7 +967,7 @@
       </div>
     </section>
 
-    <!-- SECTION 1: INSIGHT KLIK TOMBOL (Requirement 1.b) -->
+    <!-- SECTION 1: INSIGHT KLIK TOMBOL -->
     <section class="clicks-breakdown-card">
       <div class="section-title-wrap">
         <div>
@@ -967,7 +1007,7 @@
       </div>
     </section>
 
-    <!-- SECTION 2: DATA FORMULIR MASUK (Requirement 2) -->
+    <!-- SECTION 2: DATA FORMULIR MASUK -->
     <section class="leads-card">
       <div class="leads-header">
         <div>
@@ -1012,73 +1052,7 @@
 
   </div>
 
-  <!-- MODAL: Setup SQL Supabase -->
-  <div class="modal-backdrop" id="sql-modal">
-    <div class="modal-box">
-      <div class="modal-top">
-        <h3 class="modal-title">Setup Database Supabase: Tabel 'portofolio'</h3>
-        <button class="btn-ghost" id="btn-close-modal" style="font-size: 1.5rem; line-height: 1;">&times;</button>
-      </div>
-
-      <p style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1rem;">
-        Untuk mengaktifkan penyimpanan data kunjungan, klik, dan form secara real-time di cloud Supabase Anda, jalankan perintah SQL berikut di Supabase Dashboard:
-      </p>
-
-      <ol style="font-size: 0.8125rem; color: var(--text-muted); margin-left: 1.25rem; margin-bottom: 1rem; line-height: 1.6;">
-        <li>Buka <a href="https://supabase.com/dashboard/project/tydixffpnhqpxtslamqm/sql/new" target="_blank" style="color: var(--cyan); text-decoration: underline;">Supabase SQL Editor (Proyek tydixffpnhqpxtslamqm)</a>.</li>
-        <li>Salin kode SQL di bawah dan tempelkan ke editor Supabase.</li>
-        <li>Klik tombol <strong>Run</strong> di Supabase. Selesai!</li>
-      </ol>
-
-      <div class="code-block-wrap">
-        <button class="copy-btn-floating" id="btn-copy-sql">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Salin SQL
-        </button>
-        <pre class="code-box" id="sql-code-content">-- 1. Buat tabel portofolio
-CREATE TABLE IF NOT EXISTS public.portofolio (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    event_type TEXT NOT NULL,                  -- 'visit', 'click', atau 'form'
-    button_name TEXT,                          -- Nama tombol yang diklik
-    button_id TEXT,                            -- ID / selector tombol
-    visitor_id TEXT,                           -- Identifier anonim pengunjung
-    name TEXT,                                 -- Nama pengisi formulir
-    email TEXT,                                -- Email pengisi formulir
-    message TEXT,                              -- Isi pesan / kolaborasi
-    metadata JSONB DEFAULT '{}'::jsonb,        -- Browser, device, screen, path
-    created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
--- 2. Buat index
-CREATE INDEX IF NOT EXISTS idx_portofolio_event_type ON public.portofolio (event_type);
-CREATE INDEX IF NOT EXISTS idx_portofolio_created_at ON public.portofolio (created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_portofolio_button_name ON public.portofolio (button_name);
-
--- 3. Aktifkan Row Level Security (RLS)
-ALTER TABLE public.portofolio ENABLE ROW LEVEL SECURITY;
-
--- 4. Buat Kebijakan Akses (RLS Policies)
-DROP POLICY IF EXISTS "Allow public insert on portofolio" ON public.portofolio;
-CREATE POLICY "Allow public insert on portofolio" 
-ON public.portofolio FOR INSERT TO anon, authenticated 
-WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Allow public select on portofolio" ON public.portofolio;
-CREATE POLICY "Allow public select on portofolio" 
-ON public.portofolio FOR SELECT TO anon, authenticated 
-USING (true);</pre>
-      </div>
-
-      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
-        <button class="btn btn-secondary" id="btn-modal-cancel">Tutup</button>
-        <a href="https://supabase.com/dashboard/project/tydixffpnhqpxtslamqm/sql/new" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
-          Buka Supabase SQL Editor ↗
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast Notification -->
+  <!-- Toast Notification (Khusus untuk aksi pengguna manual seperti copy/export) -->
   <div class="toast" id="toast-notif">
     <span id="toast-icon">✓</span>
     <span id="toast-message">Pesan notifikasi</span>
@@ -1092,10 +1066,13 @@ USING (true);</pre>
       table: 'portofolio'
     };
 
+    // Password Admin
+    const ADMIN_PASSWORD = '@A7x4ever';
+    const AUTH_STORAGE_KEY = 'ardi_admin_auth';
+
     // State Aplikasi
     let allEvents = [];
     let currentFilterRange = '7d';
-    let isSupabaseOnline = false;
 
     // Instance Chart.js
     let dailyChart = null;
@@ -1108,7 +1085,7 @@ USING (true);</pre>
       document.getElementById('toast-message').textContent = msg;
       document.getElementById('toast-icon').textContent = icon;
       toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 3500);
+      setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
     // Format Tanggal
@@ -1124,21 +1101,13 @@ USING (true);</pre>
       });
     }
 
-    function formatDateShort(isoStr) {
-      if (!isoStr) return '';
-      const d = new Date(isoStr);
-      return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-    }
-
-    // Ambil Data dari Supabase REST API (dengan Fallback ke LocalStorage & Sample Data)
-    async function fetchSupabaseData() {
+    // 4. Ambil Data dari Supabase REST API (Secara hening tanpa notif toast dan tanpa re-animasi card)
+    async function fetchSupabaseData(isSilent = true) {
       const refreshIcon = document.getElementById('refresh-icon');
       refreshIcon?.classList.add('rotating');
       
-      const statusPill = document.getElementById('db-status-pill');
       const statusDot = document.getElementById('status-dot');
       const statusText = document.getElementById('status-text');
-      const setupBanner = document.getElementById('setup-banner');
 
       try {
         const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.table}?select=*&order=created_at.desc&limit=1000`, {
@@ -1150,33 +1119,20 @@ USING (true);</pre>
 
         if (response.ok) {
           const data = await response.json();
-          isSupabaseOnline = true;
           statusDot.className = 'dot-live';
           statusText.textContent = `Supabase Terhubung (${data.length} baris)`;
-          setupBanner.style.display = 'none';
 
           // Gabungkan dengan cadangan lokal jika ada
           const localEvents = getLocalEvents();
           allEvents = mergeEvents(data, localEvents);
-          showToast(`Berhasil memuat ${allEvents.length} data dari Supabase!`);
+          // Tidak ada showToast di sini sesuai permintaan
         } else {
-          const err = await response.json().catch(() => ({}));
-          isSupabaseOnline = false;
           statusDot.className = 'dot-warn';
-          
-          if (err.code === 'PGRST205' || response.status === 404) {
-            statusText.textContent = 'Tabel Belum Dibuat di Supabase';
-            setupBanner.style.display = 'flex';
-          } else {
-            statusText.textContent = 'Koneksi Supabase Tertunda';
-          }
-
-          // Gunakan data cadangan lokal + sample
+          statusText.textContent = 'Koneksi Supabase Tertunda';
           loadFallbackData();
         }
       } catch (err) {
         console.warn('Gagal menghubungi Supabase API:', err);
-        isSupabaseOnline = false;
         statusDot.className = 'dot-warn';
         statusText.textContent = 'Mode Offline (Lokal)';
         loadFallbackData();
@@ -1202,7 +1158,6 @@ USING (true);</pre>
         if (item.id) map.set(item.id, item);
       });
       localList.forEach(item => {
-        // Cek duplikasi berdasarkan event_type & visitor_id & created_at
         const key = item.id || `${item.event_type}_${item.visitor_id}_${item.created_at}`;
         if (!map.has(key)) map.set(key, item);
       });
@@ -1213,31 +1168,6 @@ USING (true);</pre>
       const localEvents = getLocalEvents();
       if (localEvents.length > 0) {
         allEvents = localEvents;
-      } else {
-        // Mock data awal yang realistis agar dashboard tidak kosong saat pertama dibuka
-        const now = Date.now();
-        const hour = 3600 * 1000;
-        const day = 24 * hour;
-        allEvents = [
-          { id: 'm1', event_type: 'visit', visitor_id: 'v_user_1', metadata: { device: 'Desktop' }, created_at: new Date(now - 1 * day).toISOString() },
-          { id: 'm2', event_type: 'visit', visitor_id: 'v_user_2', metadata: { device: 'Desktop' }, created_at: new Date(now - 2 * day).toISOString() },
-          { id: 'm3', event_type: 'visit', visitor_id: 'v_user_3', metadata: { device: 'Mobile' }, created_at: new Date(now - 3 * day).toISOString() },
-          { id: 'm4', event_type: 'visit', visitor_id: 'v_user_4', metadata: { device: 'Mobile' }, created_at: new Date(now - 4 * day).toISOString() },
-          { id: 'm5', event_type: 'visit', visitor_id: 'v_user_5', metadata: { device: 'Desktop' }, created_at: new Date(now - 5 * day).toISOString() },
-          { id: 'm6', event_type: 'visit', visitor_id: 'v_user_6', metadata: { device: 'Desktop' }, created_at: new Date(now - 2 * hour).toISOString() },
-          
-          { id: 'c1', event_type: 'click', button_name: "Let's Talk (Hero CTA)", created_at: new Date(now - 1 * day).toISOString() },
-          { id: 'c2', event_type: 'click', button_name: "Let's Talk (Hero CTA)", created_at: new Date(now - 2 * day).toISOString() },
-          { id: 'c3', event_type: 'click', button_name: "View Work (Hero)", created_at: new Date(now - 1 * day).toISOString() },
-          { id: 'c4', event_type: 'click', button_name: "The Framework (Studio)", created_at: new Date(now - 3 * day).toISOString() },
-          { id: 'c5', event_type: 'click', button_name: "Lihat Portofolio: Website & System Builder", created_at: new Date(now - 2 * day).toISOString() },
-          { id: 'c6', event_type: 'click', button_name: "Lihat Portofolio: AI Automator", created_at: new Date(now - 4 * day).toISOString() },
-          { id: 'c7', event_type: 'click', button_name: "Start a project (Footer)", created_at: new Date(now - 3 * hour).toISOString() },
-          { id: 'c8', event_type: 'click', button_name: "Connect on WhatsApp", created_at: new Date(now - 2 * hour).toISOString() },
-
-          { id: 'f1', event_type: 'form', name: 'Rian Pratama', email: 'rian@digitalagency.id', message: 'Halo Ardi, kami tertarik kolaborasi untuk pembangunan sistem otomatisasi AI & Web apps.', created_at: new Date(now - 1 * day).toISOString() },
-          { id: 'f2', event_type: 'form', name: 'Dewi Lestari', email: 'dewi.lestari@startup.co', message: 'Ingin diskusi remote position untuk Graphic Designer & Digital Advertiser di tim kami.', created_at: new Date(now - 3 * day).toISOString() }
-        ];
       }
     }
 
@@ -1255,7 +1185,7 @@ USING (true);</pre>
       });
     }
 
-    // Render Semua Komponen Dashboard
+    // Render Semua Komponen Dashboard Tanpa Efek Lompatan/Animasi Kasar
     function renderDashboard() {
       const events = getFilteredEvents();
 
@@ -1289,7 +1219,7 @@ USING (true);</pre>
       const topButton = sortedButtons[0] ? sortedButtons[0][0] : '-';
       const topButtonCount = sortedButtons[0] ? sortedButtons[0][1] : 0;
 
-      // Update Elemen DOM KPI
+      // Update Elemen DOM KPI langsung tanpa render ulang elemen
       document.getElementById('stat-total-visits').textContent = totalVisits.toLocaleString('id-ID');
       document.getElementById('stat-unique-visitors').textContent = `${uniqueVisitors} Pengunjung Unik`;
       document.getElementById('stat-device-split').textContent = `${desktopPct}% Desktop, ${100 - desktopPct}% Mobile`;
@@ -1304,23 +1234,24 @@ USING (true);</pre>
       document.getElementById('stat-top-button').textContent = topButton;
       document.getElementById('stat-top-button-count').textContent = `${topButtonCount} klik`;
 
-      // 2. Render Diagram Batang
+      // 2. Render Diagram Batang dengan update tenang (tanpa jumping animation)
       renderDailyActivityChart(events);
       renderConversionFunnelChart(totalVisits, totalClicks, totalForms);
       renderButtonClicksBarChart(sortedButtons, totalClicks);
 
-      // 3. Render Tabel Tombol (Requirement 1.b)
+      // 3. Render Tabel Tombol
       renderButtonsTable(sortedButtons, totalClicks);
 
-      // 4. Render Tabel Form Masuk (Requirement 2)
+      // 4. Render Tabel Form Masuk
       renderLeadsTable(forms);
     }
 
-    // DIAGRAM BATANG 1: Aktivitas Harian (Chart.js)
+    // DIAGRAM BATANG 1: Aktivitas Harian (Smooth In-Place Update)
     function renderDailyActivityChart(events) {
-      const ctx = document.getElementById('dailyActivityChart').getContext('2d');
+      const canvas = document.getElementById('dailyActivityChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
 
-      // Kelompokkan event berdasarkan tanggal (7 hari terakhir atau sesuai data)
       const daysMap = {};
       const daysCount = currentFilterRange === 'today' ? 1 : (currentFilterRange === '30d' ? 30 : 7);
       
@@ -1352,7 +1283,14 @@ USING (true);</pre>
       const clicksData = Object.values(daysMap).map(d => d.clicks);
       const formsData = Object.values(daysMap).map(d => d.forms);
 
-      if (dailyChart) dailyChart.destroy();
+      if (dailyChart) {
+        dailyChart.data.labels = labels;
+        dailyChart.data.datasets[0].data = visitsData;
+        dailyChart.data.datasets[1].data = clicksData;
+        dailyChart.data.datasets[2].data = formsData;
+        dailyChart.update('none'); // Update hening tanpa animasi berulang
+        return;
+      }
 
       dailyChart = new Chart(ctx, {
         type: 'bar',
@@ -1388,6 +1326,7 @@ USING (true);</pre>
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          animation: { duration: 400 },
           plugins: {
             legend: {
               labels: { color: '#a1a1aa', font: { family: 'Onest', size: 11 } }
@@ -1416,10 +1355,17 @@ USING (true);</pre>
       });
     }
 
-    // DIAGRAM BATANG 2: Conversion Funnel Ratio
+    // DIAGRAM BATANG 2: Conversion Funnel (Smooth In-Place Update)
     function renderConversionFunnelChart(visits, clicks, forms) {
-      const ctx = document.getElementById('conversionFunnelChart').getContext('2d');
-      if (funnelChart) funnelChart.destroy();
+      const canvas = document.getElementById('conversionFunnelChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      if (funnelChart) {
+        funnelChart.data.datasets[0].data = [visits, clicks, forms];
+        funnelChart.update('none'); // Update hening
+        return;
+      }
 
       funnelChart = new Chart(ctx, {
         type: 'bar',
@@ -1441,6 +1387,7 @@ USING (true);</pre>
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          animation: { duration: 400 },
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -1465,12 +1412,12 @@ USING (true);</pre>
       });
     }
 
-    // DIAGRAM BATANG 3: Horizontal Bar Chart per Tombol (Requirement 1.b)
+    // DIAGRAM BATANG 3: Horizontal Bar Chart per Tombol (Smooth In-Place Update)
     function renderButtonClicksBarChart(sortedButtons, totalClicks) {
-      const ctx = document.getElementById('buttonClicksBarChart').getContext('2d');
-      if (buttonBarChart) buttonBarChart.destroy();
+      const canvas = document.getElementById('buttonClicksBarChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
 
-      // Ambil top 8 tombol
       const topItems = sortedButtons.slice(0, 8);
       const labels = topItems.map(item => item[0]);
       const data = topItems.map(item => item[1]);
@@ -1479,6 +1426,14 @@ USING (true);</pre>
         '#cf8047', '#54d9ee', '#a8a2ff', '#10b981',
         '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'
       ];
+
+      if (buttonBarChart) {
+        buttonBarChart.data.labels = labels.length ? labels : ['Belum ada klik'];
+        buttonBarChart.data.datasets[0].data = data.length ? data : [0];
+        buttonBarChart.data.datasets[0].backgroundColor = colors.slice(0, Math.max(1, topItems.length));
+        buttonBarChart.update('none'); // Update hening
+        return;
+      }
 
       buttonBarChart = new Chart(ctx, {
         type: 'bar',
@@ -1495,6 +1450,7 @@ USING (true);</pre>
           indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
+          animation: { duration: 400 },
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -1529,7 +1485,7 @@ USING (true);</pre>
       });
     }
 
-    // RENDER TABEL DETAIL KLIK TOMBOL (Requirement 1.b)
+    // RENDER TABEL DETAIL KLIK TOMBOL
     function renderButtonsTable(sortedButtons, totalClicks) {
       const tbody = document.getElementById('buttons-table-body');
       if (!sortedButtons.length) {
@@ -1565,7 +1521,7 @@ USING (true);</pre>
       }).join('');
     }
 
-    // RENDER TABEL PENGISI FORMULIR (Requirement 2)
+    // RENDER TABEL PENGISI FORMULIR
     function renderLeadsTable(forms) {
       const tbody = document.getElementById('leads-table-body');
       const searchQuery = document.getElementById('lead-search').value.toLowerCase().trim();
@@ -1726,14 +1682,74 @@ USING (true);</pre>
         });
       } catch (e) {}
 
-      showToast(`Data formulir tes atas nama '${randomName}' ditambahkan!`);
-      fetchSupabaseData();
+      showToast(`Data formulir tes '${randomName}' ditambahkan!`);
+      fetchSupabaseData(true);
+    }
+
+    // ============================================================
+    // 3. LOGIKA OTENTIKASI LOGIN ADMIN (@A7x4ever)
+    // ============================================================
+    function checkAuthentication() {
+      const isAuth = sessionStorage.getItem(AUTH_STORAGE_KEY) === 'true';
+      const loginScreen = document.getElementById('login-screen');
+      if (isAuth) {
+        loginScreen.classList.add('hidden');
+        fetchSupabaseData(true);
+      } else {
+        loginScreen.classList.remove('hidden');
+        document.getElementById('admin-password-input').focus();
+      }
+    }
+
+    function handleLoginSubmit(e) {
+      e.preventDefault();
+      const pwdInput = document.getElementById('admin-password-input');
+      const errorMsg = document.getElementById('login-error-msg');
+      const val = pwdInput.value;
+
+      if (val === ADMIN_PASSWORD) {
+        sessionStorage.setItem(AUTH_STORAGE_KEY, 'true');
+        errorMsg.classList.remove('show');
+        document.getElementById('login-screen').classList.add('hidden');
+        fetchSupabaseData(true);
+      } else {
+        errorMsg.classList.add('show');
+        pwdInput.focus();
+        pwdInput.select();
+      }
+    }
+
+    function handleLogout() {
+      sessionStorage.removeItem(AUTH_STORAGE_KEY);
+      document.getElementById('admin-password-input').value = '';
+      document.getElementById('login-error-msg').classList.remove('show');
+      document.getElementById('login-screen').classList.remove('hidden');
+      document.getElementById('admin-password-input').focus();
     }
 
     // Event Listeners
     document.addEventListener('DOMContentLoaded', () => {
-      // 1. Initial Load
-      fetchSupabaseData();
+      // 1. Cek Login
+      checkAuthentication();
+
+      // Form Login
+      document.getElementById('admin-login-form').addEventListener('submit', handleLoginSubmit);
+
+      // Toggle Eye Password
+      document.getElementById('btn-toggle-pwd').addEventListener('click', () => {
+        const pwdInput = document.getElementById('admin-password-input');
+        const eyeIcon = document.getElementById('eye-icon');
+        if (pwdInput.type === 'password') {
+          pwdInput.type = 'text';
+          eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+        } else {
+          pwdInput.type = 'password';
+          eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+        }
+      });
+
+      // Tombol Logout
+      document.getElementById('btn-logout').addEventListener('click', handleLogout);
 
       // 2. Filter Tabs
       document.querySelectorAll('#range-tabs .filter-tab').forEach(tab => {
@@ -1745,8 +1761,10 @@ USING (true);</pre>
         });
       });
 
-      // 3. Refresh Button
-      document.getElementById('btn-refresh').addEventListener('click', fetchSupabaseData);
+      // 3. Refresh Button (Hening tanpa notif & tanpa animasi berulang)
+      document.getElementById('btn-refresh').addEventListener('click', () => {
+        fetchSupabaseData(true);
+      });
 
       // 4. Test Event Button
       document.getElementById('btn-test-event').addEventListener('click', sendTestEvent);
@@ -1760,27 +1778,12 @@ USING (true);</pre>
       // 6. Export CSV
       document.getElementById('btn-export-csv').addEventListener('click', exportLeadsCSV);
 
-      // 7. Modal Handlers
-      const modal = document.getElementById('sql-modal');
-      const openModal = () => modal.classList.add('open');
-      const closeModal = () => modal.classList.remove('open');
-
-      document.getElementById('btn-open-sql-modal').addEventListener('click', openModal);
-      document.getElementById('btn-banner-sql')?.addEventListener('click', openModal);
-      document.getElementById('btn-close-modal').addEventListener('click', closeModal);
-      document.getElementById('btn-modal-cancel').addEventListener('click', closeModal);
-      modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-
-      // 8. Copy SQL Button
-      document.getElementById('btn-copy-sql').addEventListener('click', () => {
-        const sqlText = document.getElementById('sql-code-content').textContent;
-        navigator.clipboard.writeText(sqlText).then(() => {
-          showToast('SQL berhasil disalin ke clipboard!');
-        });
-      });
-
-      // Auto Refresh setiap 30 detik
-      setInterval(fetchSupabaseData, 30000);
+      // Auto Refresh hening setiap 30 detik
+      setInterval(() => {
+        if (sessionStorage.getItem(AUTH_STORAGE_KEY) === 'true') {
+          fetchSupabaseData(true);
+        }
+      }, 30000);
     });
   </script>
 </body>
