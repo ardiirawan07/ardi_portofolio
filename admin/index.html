@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Intelligence Hub — Ardi Irawan</title>
+  <meta name="description" content="Dashboard Analytics & Database Supabase untuk Portofolio Ardi Irawan. Insight pengunjung, klik tombol, dan form leads.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%230a0a0a'/%3E%3Cpath d='M24 2c2.2 13.8 7.9 19.6 22 22-14.1 2.4-19.8 8.2-22 22-2.2-13.8-7.9-19.6-22-22 14.1-2.4 19.8-8.2 22-22Z' fill='%23cf8047'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <script>
+    // 2. Hilangkan .html dari URL browser tanpa reload jika ada
+    if (window.location.pathname.endsWith('.html')) {
+      const cleanPath = window.location.pathname.replace(/\.html$/, '');
+      window.history.replaceState(null, '', cleanPath + window.location.search + window.location.hash);
+    }
+  </script>
+  
+  <style>
+    :root {
+      --bg: #09090b;
+      --surface: #121215;
+      --surface-card: #18181c;
+      --surface-card-hover: #1f1f24;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(207, 128, 71, 0.35);
+      --text: #f4f4f5;
+      --text-muted: #94949e;
+      --text-subtle: #63636e;
+      --accent: #cf8047;
+      --accent-hover: #e09158;
+      --accent-glow: rgba(207, 128, 71, 0.18);
+      --cyan: #54d9ee;
+      --purple: #a8a2ff;
+      --green: #10b981;
+      --red: #ef4444;
+      --radius-xl: 1.5rem;
+      --radius-lg: 1rem;
+      --radius-md: 0.75rem;
+      --radius-pill: 9999px;
+      --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Onest', sans-serif;
+      min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+    input, select, textarea { font: inherit; }
+
+    /* ============================================================
+       3. HALAMAN LOGIN ADMIN (PASSWORD ONLY: @A7x4ever)
+       ============================================================ */
+    #login-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: radial-gradient(circle at 50% 20%, rgba(207, 128, 71, 0.08), transparent 50%), #09090b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+    #login-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .login-box {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(24, 24, 28, 0.85);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem 2rem;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .login-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+    .login-logo {
+      width: 3.5rem;
+      height: 3.5rem;
+      margin: 0 auto 1.25rem;
+      border-radius: 1rem;
+      background: #000;
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    }
+    .login-logo svg { width: 2rem; height: 2rem; }
+    .login-box h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.35rem;
+    }
+    .login-box p {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-bottom: 1.75rem;
+    }
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      text-align: left;
+    }
+    .input-wrapper {
+      position: relative;
+    }
+    .login-input {
+      width: 100%;
+      background: rgba(18, 18, 21, 0.9);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 0.85rem 3rem 0.85rem 1rem;
+      color: var(--text);
+      font-size: 0.9375rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .login-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .btn-toggle-pwd {
+      position: absolute;
+      right: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      padding: 0.35rem;
+      display: grid;
+      place-items: center;
+      transition: color 0.2s;
+    }
+    .btn-toggle-pwd:hover {
+      color: var(--text);
+    }
+    .login-error {
+      color: var(--red);
+      font-size: 0.75rem;
+      margin-top: -0.25rem;
+      min-height: 1.2rem;
+      display: none;
+    }
+    .login-error.show {
+      display: block;
+      animation: shake 0.35s ease-in-out;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+    .btn-submit-login {
+      width: 100%;
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius-lg);
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+    .btn-submit-login:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    /* Layout Shell */
+    .dashboard-shell {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 4rem;
+    }
+
+    /* Top Navbar */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      padding: 1rem 1.5rem;
+      background: rgba(18, 18, 21, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 2rem;
+      position: sticky;
+      top: 1rem;
+      z-index: 50;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .brand-logo {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 0.6rem;
+      background: #000;
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+    }
+    .brand-logo svg { width: 1.35rem; height: 1.35rem; }
+    .brand-info h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .brand-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius-pill);
+      background: var(--accent-glow);
+      color: var(--accent);
+      border: 1px solid var(--border-accent);
+    }
+    .brand-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* Status indicator pill */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: var(--radius-pill);
+      background: rgba(24, 24, 28, 0.9);
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+    .dot-live {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px var(--green);
+      animation: pulse 2s infinite;
+    }
+    .dot-warn {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: #f59e0b;
+      box-shadow: 0 0 10px #f59e0b;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    /* Action Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      font-weight: 600;
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .btn-ghost {
+      color: var(--text-muted);
+    }
+    .btn-ghost:hover {
+      color: var(--text);
+    }
+
+    /* Filter Controls Bar */
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .filter-tabs {
+      display: inline-flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.25rem;
+      border-radius: var(--radius-pill);
+      gap: 0.25rem;
+    }
+    .filter-tab {
+      padding: 0.4rem 1rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .filter-tab.active {
+      background: var(--surface-card);
+      color: var(--text);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+    .filter-tab:hover:not(.active) {
+      color: var(--text);
+    }
+
+    .meta-time {
+      font-size: 0.75rem;
+      color: var(--text-subtle);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* ============================================================
+       4. KPI CARDS (ANIMASI DIHILANGKAN SAAT REFRESH DATA)
+       ============================================================ */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .kpi-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+    .kpi-card-glow {
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: var(--glow-color, var(--accent-glow));
+      filter: blur(40px);
+      pointer-events: none;
+    }
+    .kpi-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .kpi-title {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .kpi-icon {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 0.75rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      color: var(--icon-color, var(--accent));
+    }
+    .kpi-icon svg { width: 1.2rem; height: 1.2rem; }
+    .kpi-value {
+      font-size: 2.35rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.5rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .kpi-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-subtle);
+    }
+    .badge-trend {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--green);
+    }
+
+    /* Charts Section */
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .section-desc {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .charts-grid-main {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .chart-panel {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 1.75rem;
+      box-shadow: var(--shadow-card);
+      position: relative;
+    }
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .chart-header h3 {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .chart-header p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .chart-canvas-wrap {
+      position: relative;
+      width: 100%;
+      height: 320px;
+    }
+
+    /* Horizontal Bar Chart for Button Clicks */
+    .clicks-breakdown-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 1.75rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-card);
+    }
+    .clicks-grid-split {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 2rem;
+      align-items: start;
+      margin-top: 1.5rem;
+    }
+    .btn-chart-wrap {
+      position: relative;
+      height: 340px;
+    }
+
+    /* Structured Buttons Table / List */
+    .buttons-table-wrap {
+      overflow-x: auto;
+    }
+    .custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.8125rem;
+    }
+    .custom-table th {
+      padding: 0.75rem 1rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-subtle);
+      border-bottom: 1px solid var(--border);
+    }
+    .custom-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      vertical-align: middle;
+    }
+    .custom-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .btn-name-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-weight: 500;
+    }
+    .btn-color-dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .progress-bar-bg {
+      width: 100%;
+      max-width: 100px;
+      height: 6px;
+      border-radius: var(--radius-pill);
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: var(--radius-pill);
+      background: var(--accent);
+    }
+
+    /* Form Leads Section */
+    .leads-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 1.75rem;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 3rem;
+    }
+    .leads-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    .leads-search-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .search-input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      padding: 0.5rem 1rem 0.5rem 2.25rem;
+      color: var(--text);
+      font-size: 0.8125rem;
+      width: 260px;
+      outline: none;
+      transition: border-color 0.2s;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 0.85rem center;
+    }
+    .search-input:focus {
+      border-color: var(--accent);
+    }
+
+    /* Lead row card style */
+    .lead-avatar {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #cf8047, #97501f);
+      display: grid;
+      place-items: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .lead-author-block {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .lead-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: #fff;
+    }
+    .lead-email {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .lead-msg-text {
+      max-width: 480px;
+      font-size: 0.8125rem;
+      color: #d1d1d6;
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .badge-source {
+      display: inline-block;
+      font-size: 0.6875rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius-pill);
+      background: rgba(84, 217, 238, 0.1);
+      color: var(--cyan);
+      border: 1px solid rgba(84, 217, 238, 0.2);
+    }
+    .action-icons-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-icon-action {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .btn-icon-action:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      transform: scale(1.05);
+    }
+    .btn-icon-action.wa:hover {
+      background: #25d366;
+      color: #000;
+      border-color: #25d366;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 3.5rem 1rem;
+      color: var(--text-muted);
+    }
+    .empty-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+      opacity: 0.6;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--surface-card);
+      border: 1px solid var(--border-accent);
+      padding: 0.85rem 1.25rem;
+      border-radius: var(--radius-lg);
+      font-size: 0.8125rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      z-index: 200;
+    }
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .charts-grid-main { grid-template-columns: 1fr; }
+      .clicks-grid-split { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .dashboard-shell { padding: 1rem 1rem 3rem; }
+      .top-nav { flex-direction: column; align-items: stretch; }
+      .kpi-grid { grid-template-columns: 1fr; }
+      .top-actions { justify-content: space-between; }
+      .kpi-value { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       3. HALAMAN LOGIN (PASSWORD: @A7x4ever)
+       ============================================================ -->
+  <div id="login-screen">
+    <div class="login-box">
+      <div class="login-logo" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+          <path fill="currentColor" stroke="none" d="M24 2c2.2 13.8 7.9 19.6 22 22-14.1 2.4-19.8 8.2-22 22-2.2-13.8-7.9-19.6-22-22 14.1-2.4 19.8-8.2 22-22Z"/>
+        </svg>
+      </div>
+      <h2>Admin Intelligence Hub</h2>
+      <p>Masukkan password admin untuk mengakses analitik dan data leads portofolio.</p>
+
+      <form class="login-form" id="admin-login-form">
+        <div class="input-wrapper">
+          <input 
+            type="password" 
+            id="admin-password-input" 
+            class="login-input" 
+            placeholder="Password..." 
+            autocomplete="current-password"
+            required
+            autofocus
+          >
+          <button type="button" class="btn-toggle-pwd" id="btn-toggle-pwd" title="Lihat/Sembunyikan password">
+            <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="login-error" id="login-error-msg">Password salah. Silakan coba lagi.</div>
+        <button type="submit" class="btn-submit-login">
+          Masuk ke Dashboard ↗
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- DASHBOARD SHELL -->
+  <div class="dashboard-shell" id="dashboard-shell">
+    
+    <!-- Top Navigation Bar -->
+    <header class="top-nav">
+      <div class="brand-wrap">
+        <div class="brand-logo" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+            <path fill="currentColor" stroke="none" d="M24 2c2.2 13.8 7.9 19.6 22 22-14.1 2.4-19.8 8.2-22 22-2.2-13.8-7.9-19.6-22-22 14.1-2.4 19.8-8.2 22-22Z"/>
+          </svg>
+        </div>
+        <div class="brand-info">
+          <h1>Ardi Irawan <span class="brand-badge">Admin Hub</span></h1>
+          <p class="brand-sub">Real-time Supabase Portfolio Intelligence</p>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <!-- Status Indicator Pill -->
+        <div class="status-pill" id="db-status-pill" title="Status Database Supabase">
+          <span class="dot-live" id="status-dot"></span>
+          <span id="status-text">Supabase Terhubung</span>
+        </div>
+
+        <!-- 4. Tombol Refresh (Tanpa notifikasi toast dan tanpa animasi card) -->
+        <button class="btn btn-secondary" id="btn-refresh" title="Muat ulang data dari Supabase secara hening">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="refresh-icon"><path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+          Refresh
+        </button>
+
+        <button class="btn btn-secondary" id="btn-test-event" title="Buat data tes untuk menguji database">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Kirim Data Tes
+        </button>
+
+        <a href="../index.html" class="btn btn-primary" title="Buka website portofolio">
+          Lihat Web ↗
+        </a>
+
+        <!-- Tombol Logout -->
+        <button class="btn btn-secondary" id="btn-logout" title="Kunci / Keluar dari Dashboard Admin" style="padding: 0.5rem 0.75rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Filters & Time Controls -->
+    <div class="controls-bar">
+      <div class="filter-tabs" id="range-tabs">
+        <button class="filter-tab" data-range="today">Hari Ini</button>
+        <button class="filter-tab active" data-range="7d">7 Hari Terakhir</button>
+        <button class="filter-tab" data-range="30d">30 Hari Terakhir</button>
+        <button class="filter-tab" data-range="all">Semua Waktu</button>
+      </div>
+
+      <div class="meta-time">
+        <span>Tersinkronisasi otomatis:</span>
+        <strong id="last-sync-time">Baru saja</strong>
+      </div>
+    </div>
+
+    <!-- KPI Summary Grid (4 Cards) -->
+    <section class="kpi-grid">
+      <!-- 1. Total Kunjungan -->
+      <article class="kpi-card" style="--glow-color: rgba(84, 217, 238, 0.15); --icon-color: var(--cyan);">
+        <div class="kpi-card-glow"></div>
+        <div class="kpi-header">
+          <span class="kpi-title">Pengunjung Website</span>
+          <div class="kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>
+          </div>
+        </div>
+        <div class="kpi-value" id="stat-total-visits">0</div>
+        <div class="kpi-meta">
+          <span class="badge-trend" id="stat-unique-visitors">0 Pengunjung Unik</span>
+          <span>•</span>
+          <span id="stat-device-split">100% Desktop</span>
+        </div>
+      </article>
+
+      <!-- 2. Total Klik Tombol -->
+      <article class="kpi-card" style="--glow-color: rgba(207, 128, 71, 0.15); --icon-color: var(--accent);">
+        <div class="kpi-card-glow"></div>
+        <div class="kpi-header">
+          <span class="kpi-title">Total Klik Tombol</span>
+          <div class="kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 3 7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="m13 13 6 6"/></svg>
+          </div>
+        </div>
+        <div class="kpi-value" id="stat-total-clicks">0</div>
+        <div class="kpi-meta">
+          <span class="badge-trend" id="stat-ctr">CTR: 0%</span>
+          <span>•</span>
+          <span id="stat-button-count">0 variasi tombol</span>
+        </div>
+      </article>
+
+      <!-- 3. Form Masuk -->
+      <article class="kpi-card" style="--glow-color: rgba(168, 162, 255, 0.15); --icon-color: var(--purple);">
+        <div class="kpi-card-glow"></div>
+        <div class="kpi-header">
+          <span class="kpi-title">Form Masuk (Leads)</span>
+          <div class="kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+        </div>
+        <div class="kpi-value" id="stat-total-forms">0</div>
+        <div class="kpi-meta">
+          <span class="badge-trend" id="stat-conversion-rate">Konversi: 0%</span>
+          <span>•</span>
+          <span>Kolaborasi & Proyek</span>
+        </div>
+      </article>
+
+      <!-- 4. Tombol Terpopuler -->
+      <article class="kpi-card" style="--glow-color: rgba(16, 185, 129, 0.15); --icon-color: var(--green);">
+        <div class="kpi-card-glow"></div>
+        <div class="kpi-header">
+          <span class="kpi-title">Tombol Terfavorit</span>
+          <div class="kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+        </div>
+        <div class="kpi-value" style="font-size: 1.45rem; line-height: 1.25; min-height: 2.35rem; display: flex; align-items: center;" id="stat-top-button">-</div>
+        <div class="kpi-meta">
+          <span class="badge-trend" id="stat-top-button-count">0 klik</span>
+          <span>•</span>
+          <span>CTA paling banyak interaksi</span>
+        </div>
+      </article>
+    </section>
+
+    <!-- SECTION 0: DIAGRAM BATANG UTAMA -->
+    <section>
+      <div class="section-title-wrap">
+        <div>
+          <h2 class="section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Diagram Batang Keseluruhan (Aktivitas Harian & Perbandingan)
+          </h2>
+          <p class="section-desc">Visualisasi grafik batang terstruktur yang membandingkan pengunjung, klik tombol, dan pengisian formulir.</p>
+        </div>
+      </div>
+
+      <div class="charts-grid-main">
+        <!-- Diagram Batang 1: Daily Activity Grouped Bar Chart -->
+        <div class="chart-panel">
+          <div class="chart-header">
+            <div>
+              <h3>Tren Aktivitas Harian (Kunjungan vs Klik vs Form)</h3>
+              <p>Perbandingan volume interaksi per hari</p>
+            </div>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="dailyActivityChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Diagram Batang 2: Conversion Funnel Ratio Bar Chart -->
+        <div class="chart-panel">
+          <div class="chart-header">
+            <div>
+              <h3>Rasio Konversi & Corong Aksi</h3>
+              <p>Visits → Clicks → Form Leads</p>
+            </div>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="conversionFunnelChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 1: INSIGHT KLIK TOMBOL -->
+    <section class="clicks-breakdown-card">
+      <div class="section-title-wrap">
+        <div>
+          <h2 class="section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            Insight Klik: Rincian Berdasarkan Tombol
+          </h2>
+          <p class="section-desc">Diagram batang horizontal dan tabel terpisah untuk setiap tombol interaktif di portofolio.</p>
+        </div>
+      </div>
+
+      <div class="clicks-grid-split">
+        <!-- Diagram Batang Horizontal Tiap Tombol -->
+        <div>
+          <div class="btn-chart-wrap">
+            <canvas id="buttonClicksBarChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Tabel Detail Tiap Tombol -->
+        <div class="buttons-table-wrap">
+          <table class="custom-table" id="buttons-table">
+            <thead>
+              <tr>
+                <th>Nama Tombol</th>
+                <th>Total Klik</th>
+                <th>Persentase</th>
+              </tr>
+            </thead>
+            <tbody id="buttons-table-body">
+              <tr>
+                <td colspan="3" class="empty-state">Memuat data klik tombol...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: DATA FORMULIR MASUK -->
+    <section class="leads-card">
+      <div class="leads-header">
+        <div>
+          <h2 class="section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Data Pengisi Formulir Masuk (Leads)
+          </h2>
+          <p class="section-desc">Daftar pengunjung yang mengisi formulir kolaborasi / remote worker di portofolio.</p>
+        </div>
+
+        <div class="leads-search-wrap">
+          <input type="text" class="search-input" id="lead-search" placeholder="Cari nama, email, pesan...">
+          <button class="btn btn-secondary" id="btn-export-csv" title="Unduh data sebagai CSV">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Export CSV
+          </button>
+        </div>
+      </div>
+
+      <div class="buttons-table-wrap">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th style="min-width: 200px;">Pengirim</th>
+              <th style="min-width: 180px;">Email</th>
+              <th style="min-width: 280px;">Detail Pesan / Kebutuhan</th>
+              <th style="min-width: 130px;">Waktu Kirim</th>
+              <th style="min-width: 100px; text-align: right;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="leads-table-body">
+            <tr>
+              <td colspan="5" class="empty-state">
+                <div class="empty-icon">📭</div>
+                <p>Belum ada data formulir masuk.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast-notif">
+    <span id="toast-icon">✓</span>
+    <span id="toast-message">Pesan notifikasi</span>
+  </div>
+
+  <script>
+    // Konfigurasi Supabase
+    const SUPABASE_CONFIG = {
+      url: 'https://tydixffpnhqpxtslamqm.supabase.co',
+      key: 'sb_publishable_ydUVx0Jw5UNHcbdyhSQM6w_FgRZ-nWk',
+      table: 'portofolio'
+    };
+
+    // Password Admin
+    const ADMIN_PASSWORD = '@A7x4ever';
+    const AUTH_STORAGE_KEY = 'ardi_admin_auth';
+
+    // State Aplikasi
+    let allEvents = [];
+    let currentFilterRange = '7d';
+
+    // Instance Chart.js
+    let dailyChart = null;
+    let funnelChart = null;
+    let buttonBarChart = null;
+
+    // Toast Helper
+    function showToast(msg, icon = '✓') {
+      const toast = document.getElementById('toast-notif');
+      document.getElementById('toast-message').textContent = msg;
+      document.getElementById('toast-icon').textContent = icon;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Format Tanggal
+    function formatDate(isoStr) {
+      if (!isoStr) return '-';
+      const d = new Date(isoStr);
+      return d.toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    // 4. Ambil Data dari Supabase REST API (Secara hening tanpa notif toast dan tanpa re-animasi card)
+    async function fetchSupabaseData(isSilent = true) {
+      const refreshIcon = document.getElementById('refresh-icon');
+      refreshIcon?.classList.add('rotating');
+      
+      const statusDot = document.getElementById('status-dot');
+      const statusText = document.getElementById('status-text');
+
+      try {
+        const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.table}?select=*&order=created_at.desc&limit=1000`, {
+          headers: {
+            'apikey': SUPABASE_CONFIG.key,
+            'Authorization': `Bearer ${SUPABASE_CONFIG.key}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          statusDot.className = 'dot-live';
+          statusText.textContent = `Supabase Terhubung (${data.length} baris)`;
+
+          // Gabungkan dengan cadangan lokal jika ada
+          const localEvents = getLocalEvents();
+          allEvents = mergeEvents(data, localEvents);
+        } else {
+          statusDot.className = 'dot-warn';
+          statusText.textContent = 'Koneksi Supabase Tertunda';
+          loadFallbackData();
+        }
+      } catch (err) {
+        console.warn('Gagal menghubungi Supabase API:', err);
+        statusDot.className = 'dot-warn';
+        statusText.textContent = 'Mode Offline (Lokal)';
+        loadFallbackData();
+      } finally {
+        refreshIcon?.classList.remove('rotating');
+        document.getElementById('last-sync-time').textContent = new Date().toLocaleTimeString('id-ID');
+        renderDashboard();
+      }
+    }
+
+    function getLocalEvents() {
+      try {
+        const raw = localStorage.getItem('portofolio_events_backup');
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function mergeEvents(remoteList, localList) {
+      const map = new Map();
+      remoteList.forEach(item => {
+        if (item.id) map.set(item.id, item);
+      });
+      localList.forEach(item => {
+        const key = item.id || `${item.event_type}_${item.visitor_id}_${item.created_at}`;
+        if (!map.has(key)) map.set(key, item);
+      });
+      return Array.from(map.values()).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }
+
+    function loadFallbackData() {
+      const localEvents = getLocalEvents();
+      if (localEvents.length > 0) {
+        allEvents = localEvents;
+      }
+    }
+
+    // Filter Data Berdasarkan Rentang Waktu
+    function getFilteredEvents() {
+      if (currentFilterRange === 'all') return allEvents;
+      const now = new Date().getTime();
+      let diffMs = 7 * 24 * 3600 * 1000;
+      if (currentFilterRange === 'today') diffMs = 24 * 3600 * 1000;
+      if (currentFilterRange === '30d') diffMs = 30 * 24 * 3600 * 1000;
+
+      return allEvents.filter(e => {
+        const t = new Date(e.created_at).getTime();
+        return (now - t) <= diffMs;
+      });
+    }
+
+    // Render Semua Komponen Dashboard Tanpa Efek Lompatan/Animasi Kasar
+    function renderDashboard() {
+      const events = getFilteredEvents();
+
+      // 1. Hitung Statistik Utama
+      const visits = events.filter(e => e.event_type === 'visit');
+      const clicks = events.filter(e => e.event_type === 'click');
+      const forms = events.filter(e => e.event_type === 'form');
+
+      const totalVisits = visits.length;
+      const totalClicks = clicks.length;
+      const totalForms = forms.length;
+
+      // Unique visitors
+      const uniqueVisitors = new Set(visits.map(v => v.visitor_id || 'anon')).size;
+
+      // Device breakdown
+      const desktopCount = visits.filter(v => v.metadata?.device !== 'Mobile').length;
+      const desktopPct = totalVisits > 0 ? Math.round((desktopCount / totalVisits) * 100) : 100;
+
+      // CTR & Konversi
+      const ctr = totalVisits > 0 ? Math.round((totalClicks / totalVisits) * 100) : 0;
+      const conversionRate = totalVisits > 0 ? ((totalForms / totalVisits) * 100).toFixed(1) : '0';
+
+      // Tombol terpopuler
+      const buttonCounts = {};
+      clicks.forEach(c => {
+        const name = c.button_name || 'Tombol Umum';
+        buttonCounts[name] = (buttonCounts[name] || 0) + 1;
+      });
+      const sortedButtons = Object.entries(buttonCounts).sort((a, b) => b[1] - a[1]);
+      const topButton = sortedButtons[0] ? sortedButtons[0][0] : '-';
+      const topButtonCount = sortedButtons[0] ? sortedButtons[0][1] : 0;
+
+      // Update Elemen DOM KPI langsung tanpa render ulang elemen
+      document.getElementById('stat-total-visits').textContent = totalVisits.toLocaleString('id-ID');
+      document.getElementById('stat-unique-visitors').textContent = `${uniqueVisitors} Pengunjung Unik`;
+      document.getElementById('stat-device-split').textContent = `${desktopPct}% Desktop, ${100 - desktopPct}% Mobile`;
+
+      document.getElementById('stat-total-clicks').textContent = totalClicks.toLocaleString('id-ID');
+      document.getElementById('stat-ctr').textContent = `CTR: ${ctr}%`;
+      document.getElementById('stat-button-count').textContent = `${sortedButtons.length} variasi tombol`;
+
+      document.getElementById('stat-total-forms').textContent = totalForms.toLocaleString('id-ID');
+      document.getElementById('stat-conversion-rate').textContent = `Konversi: ${conversionRate}%`;
+
+      document.getElementById('stat-top-button').textContent = topButton;
+      document.getElementById('stat-top-button-count').textContent = `${topButtonCount} klik`;
+
+      // 2. Render Diagram Batang dengan update tenang (tanpa jumping animation)
+      renderDailyActivityChart(events);
+      renderConversionFunnelChart(totalVisits, totalClicks, totalForms);
+      renderButtonClicksBarChart(sortedButtons, totalClicks);
+
+      // 3. Render Tabel Tombol
+      renderButtonsTable(sortedButtons, totalClicks);
+
+      // 4. Render Tabel Form Masuk
+      renderLeadsTable(forms);
+    }
+
+    // DIAGRAM BATANG 1: Aktivitas Harian (Smooth In-Place Update)
+    function renderDailyActivityChart(events) {
+      const canvas = document.getElementById('dailyActivityChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const daysMap = {};
+      const daysCount = currentFilterRange === 'today' ? 1 : (currentFilterRange === '30d' ? 30 : 7);
+      
+      const now = new Date();
+      for (let i = daysCount - 1; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        const dateKey = d.toISOString().split('T')[0];
+        daysMap[dateKey] = {
+          label: d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
+          visits: 0,
+          clicks: 0,
+          forms: 0
+        };
+      }
+
+      events.forEach(e => {
+        if (!e.created_at) return;
+        const dateKey = e.created_at.split('T')[0];
+        if (daysMap[dateKey]) {
+          if (e.event_type === 'visit') daysMap[dateKey].visits++;
+          else if (e.event_type === 'click') daysMap[dateKey].clicks++;
+          else if (e.event_type === 'form') daysMap[dateKey].forms++;
+        }
+      });
+
+      const labels = Object.values(daysMap).map(d => d.label);
+      const visitsData = Object.values(daysMap).map(d => d.visits);
+      const clicksData = Object.values(daysMap).map(d => d.clicks);
+      const formsData = Object.values(daysMap).map(d => d.forms);
+
+      if (dailyChart) {
+        dailyChart.data.labels = labels;
+        dailyChart.data.datasets[0].data = visitsData;
+        dailyChart.data.datasets[1].data = clicksData;
+        dailyChart.data.datasets[2].data = formsData;
+        dailyChart.update('none');
+        return;
+      }
+
+      dailyChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Kunjungan (Visits)',
+              data: visitsData,
+              backgroundColor: 'rgba(84, 217, 238, 0.75)',
+              borderColor: '#54d9ee',
+              borderWidth: 1.5,
+              borderRadius: 6
+            },
+            {
+              label: 'Klik Tombol (Clicks)',
+              data: clicksData,
+              backgroundColor: 'rgba(207, 128, 71, 0.75)',
+              borderColor: '#cf8047',
+              borderWidth: 1.5,
+              borderRadius: 6
+            },
+            {
+              label: 'Form Masuk (Leads)',
+              data: formsData,
+              backgroundColor: 'rgba(168, 162, 255, 0.85)',
+              borderColor: '#a8a2ff',
+              borderWidth: 1.5,
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 400 },
+          plugins: {
+            legend: {
+              labels: { color: '#a1a1aa', font: { family: 'Onest', size: 11 } }
+            },
+            tooltip: {
+              padding: 10,
+              backgroundColor: '#18181b',
+              titleColor: '#fff',
+              bodyColor: '#e4e4e7',
+              borderColor: 'rgba(255,255,255,0.1)',
+              borderWidth: 1
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.04)' },
+              ticks: { color: '#71717a', font: { family: 'Onest', size: 11 } }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { precision: 0, color: '#71717a', font: { family: 'Onest', size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
+    // DIAGRAM BATANG 2: Conversion Funnel (Smooth In-Place Update)
+    function renderConversionFunnelChart(visits, clicks, forms) {
+      const canvas = document.getElementById('conversionFunnelChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      if (funnelChart) {
+        funnelChart.data.datasets[0].data = [visits, clicks, forms];
+        funnelChart.update('none');
+        return;
+      }
+
+      funnelChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Kunjungan', 'Klik Tombol', 'Form Terkirim'],
+          datasets: [{
+            label: 'Total Volume',
+            data: [visits, clicks, forms],
+            backgroundColor: [
+              'rgba(84, 217, 238, 0.75)',
+              'rgba(207, 128, 71, 0.75)',
+              'rgba(168, 162, 255, 0.75)'
+            ],
+            borderColor: ['#54d9ee', '#cf8047', '#a8a2ff'],
+            borderWidth: 1.5,
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 400 },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              padding: 10,
+              backgroundColor: '#18181b',
+              titleColor: '#fff',
+              bodyColor: '#e4e4e7'
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#a1a1aa', font: { family: 'Onest', size: 11 } }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { precision: 0, color: '#71717a' }
+            }
+          }
+        }
+      });
+    }
+
+    // DIAGRAM BATANG 3: Horizontal Bar Chart per Tombol (Smooth In-Place Update)
+    function renderButtonClicksBarChart(sortedButtons, totalClicks) {
+      const canvas = document.getElementById('buttonClicksBarChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const topItems = sortedButtons.slice(0, 8);
+      const labels = topItems.map(item => item[0]);
+      const data = topItems.map(item => item[1]);
+
+      const colors = [
+        '#cf8047', '#54d9ee', '#a8a2ff', '#10b981',
+        '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'
+      ];
+
+      if (buttonBarChart) {
+        buttonBarChart.data.labels = labels.length ? labels : ['Belum ada klik'];
+        buttonBarChart.data.datasets[0].data = data.length ? data : [0];
+        buttonBarChart.data.datasets[0].backgroundColor = colors.slice(0, Math.max(1, topItems.length));
+        buttonBarChart.update('none');
+        return;
+      }
+
+      buttonBarChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels.length ? labels : ['Belum ada klik'],
+          datasets: [{
+            label: 'Jumlah Klik',
+            data: data.length ? data : [0],
+            backgroundColor: colors.slice(0, Math.max(1, topItems.length)),
+            borderRadius: 6
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 400 },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                afterLabel: (ctx) => {
+                  const val = ctx.raw;
+                  const pct = totalClicks > 0 ? ((val / totalClicks) * 100).toFixed(1) : 0;
+                  return `Pangsa Klik: ${pct}%`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { precision: 0, color: '#71717a' }
+            },
+            y: {
+              grid: { display: false },
+              ticks: {
+                color: '#d4d4d8',
+                font: { family: 'Onest', size: 11 },
+                callback: function(value) {
+                  const lbl = this.getLabelForValue(value);
+                  return lbl.length > 25 ? lbl.substring(0, 23) + '...' : lbl;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // RENDER TABEL DETAIL KLIK TOMBOL
+    function renderButtonsTable(sortedButtons, totalClicks) {
+      const tbody = document.getElementById('buttons-table-body');
+      if (!sortedButtons.length) {
+        tbody.innerHTML = `<tr><td colspan="3" class="empty-state">Belum ada klik tombol tercatat.</td></tr>`;
+        return;
+      }
+
+      const colors = ['#cf8047', '#54d9ee', '#a8a2ff', '#10b981', '#f59e0b', '#ec4899', '#3b82f6'];
+
+      tbody.innerHTML = sortedButtons.map(([btnName, count], idx) => {
+        const pct = totalClicks > 0 ? ((count / totalClicks) * 100).toFixed(1) : 0;
+        const color = colors[idx % colors.length];
+
+        return `
+          <tr>
+            <td>
+              <div class="btn-name-cell">
+                <span class="btn-color-dot" style="background: ${color};"></span>
+                <span>${escapeHtml(btnName)}</span>
+              </div>
+            </td>
+            <td><strong>${count.toLocaleString('id-ID')}</strong> klik</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width: ${pct}%; background: ${color};"></div>
+                </div>
+                <span style="font-size: 0.75rem; color: #a1a1aa; font-variant-numeric: tabular-nums;">${pct}%</span>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // RENDER TABEL PENGISI FORMULIR
+    function renderLeadsTable(forms) {
+      const tbody = document.getElementById('leads-table-body');
+      const searchQuery = document.getElementById('lead-search').value.toLowerCase().trim();
+
+      const filteredForms = forms.filter(f => {
+        if (!searchQuery) return true;
+        const text = `${f.name || ''} ${f.email || ''} ${f.message || ''}`.toLowerCase();
+        return text.includes(searchQuery);
+      });
+
+      if (!filteredForms.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="empty-state">
+              <div class="empty-icon">📭</div>
+              <p>${searchQuery ? 'Tidak ada formulir yang cocok dengan pencarian.' : 'Belum ada data formulir kontak yang masuk.'}</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filteredForms.map((item) => {
+        const name = item.name || 'Anonim';
+        const email = item.email || '-';
+        const msg = item.message || 'Tidak ada pesan tertulis.';
+        const initials = name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() || 'U';
+        const dateStr = formatDate(item.created_at);
+
+        // Link WhatsApp Quick Action
+        const waMsg = encodeURIComponent(`Halo ${name}, terima kasih telah mengisi formulir di portofolio saya. Saya Ardi Irawan, ingin mendiskusikan kebutuhan kolaborasi Anda.`);
+        const waUrl = `https://wa.me/6285854340852?text=${waMsg}`;
+
+        return `
+          <tr>
+            <td>
+              <div class="lead-author-block">
+                <div class="lead-avatar">${escapeHtml(initials)}</div>
+                <div>
+                  <div class="lead-name">${escapeHtml(name)}</div>
+                  <span class="badge-source">Portfolio Lead</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <a href="mailto:${escapeHtml(email)}" class="lead-email" style="color: var(--cyan); text-decoration: underline;" title="Kirim email">
+                ${escapeHtml(email)}
+              </a>
+            </td>
+            <td>
+              <div class="lead-msg-text" title="${escapeHtml(msg)}">
+                ${escapeHtml(msg)}
+              </div>
+            </td>
+            <td style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap;">
+              ${dateStr}
+            </td>
+            <td style="text-align: right;">
+              <div class="action-icons-wrap" style="justify-content: flex-end;">
+                <a href="${waUrl}" target="_blank" class="btn-icon-action wa" title="Hubungi via WhatsApp">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                </a>
+                <button class="btn-icon-action" onclick="copyLeadText('${escapeHtml(name)}', '${escapeHtml(email)}', '${escapeHtml(msg)}')" title="Salin Detail">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Helper Escape HTML
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // Salin Detail Lead
+    window.copyLeadText = function(name, email, msg) {
+      const text = `Nama: ${name}\nEmail: ${email}\nPesan: ${msg}`;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Detail pengirim berhasil disalin!');
+      });
+    };
+
+    // Export CSV
+    function exportLeadsCSV() {
+      const forms = allEvents.filter(e => e.event_type === 'form');
+      if (!forms.length) {
+        showToast('Tidak ada data formulir untuk diekspor.', '!');
+        return;
+      }
+
+      let csv = 'Tanggal,Nama,Email,Pesan\n';
+      forms.forEach(f => {
+        const cleanName = `"${(f.name || '').replace(/"/g, '""')}"`;
+        const cleanEmail = `"${(f.email || '').replace(/"/g, '""')}"`;
+        const cleanMsg = `"${(f.message || '').replace(/"/g, '""')}"`;
+        const cleanDate = `"${formatDate(f.created_at)}"`;
+        csv += `${cleanDate},${cleanName},${cleanEmail},${cleanMsg}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `leads_portofolio_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('File CSV berhasil diunduh!');
+    }
+
+    // Kirim Data Tes ke Supabase
+    async function sendTestEvent() {
+      const testNames = ['Ahmad Fauzi', 'Maya Anggraini', 'Farhan Pratama', 'Clarissa Tan'];
+      const testRoles = [
+        'Tertarik kolaborasi untuk Website System Builder & Otomatisasi AI.',
+        'Butuh konsultasi campaign Digital Advertising dan visual branding.',
+        'Ingin merekrut sebagai remote AI Workflow Builder.'
+      ];
+      const randomName = testNames[Math.floor(Math.random() * testNames.length)];
+      const randomEmail = randomName.toLowerCase().replace(' ', '.') + '@company.com';
+      const randomMsg = testRoles[Math.floor(Math.random() * testRoles.length)];
+
+      const newTestLead = {
+        event_type: 'form',
+        button_name: 'Connect on WhatsApp',
+        visitor_id: 'v_test_' + Date.now().toString(36),
+        name: randomName,
+        email: randomEmail,
+        message: randomMsg,
+        created_at: new Date().toISOString()
+      };
+
+      // Simpan di cadangan lokal
+      const local = getLocalEvents();
+      local.unshift(newTestLead);
+      localStorage.setItem('portofolio_events_backup', JSON.stringify(local));
+
+      // Kirim ke Supabase jika aktif
+      try {
+        await fetch(`${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.table}`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_CONFIG.key,
+            'Authorization': `Bearer ${SUPABASE_CONFIG.key}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify(newTestLead)
+        });
+      } catch (e) {}
+
+      showToast(`Data formulir tes '${randomName}' ditambahkan!`);
+      fetchSupabaseData(true);
+    }
+
+    // ============================================================
+    // 3. LOGIKA OTENTIKASI LOGIN ADMIN (@A7x4ever)
+    // ============================================================
+    function checkAuthentication() {
+      const isAuth = sessionStorage.getItem(AUTH_STORAGE_KEY) === 'true';
+      const loginScreen = document.getElementById('login-screen');
+      if (isAuth) {
+        loginScreen.classList.add('hidden');
+        fetchSupabaseData(true);
+      } else {
+        loginScreen.classList.remove('hidden');
+        document.getElementById('admin-password-input').focus();
+      }
+    }
+
+    function handleLoginSubmit(e) {
+      e.preventDefault();
+      const pwdInput = document.getElementById('admin-password-input');
+      const errorMsg = document.getElementById('login-error-msg');
+      const val = pwdInput.value;
+
+      if (val === ADMIN_PASSWORD) {
+        sessionStorage.setItem(AUTH_STORAGE_KEY, 'true');
+        errorMsg.classList.remove('show');
+        document.getElementById('login-screen').classList.add('hidden');
+        fetchSupabaseData(true);
+      } else {
+        errorMsg.classList.add('show');
+        pwdInput.focus();
+        pwdInput.select();
+      }
+    }
+
+    function handleLogout() {
+      sessionStorage.removeItem(AUTH_STORAGE_KEY);
+      document.getElementById('admin-password-input').value = '';
+      document.getElementById('login-error-msg').classList.remove('show');
+      document.getElementById('login-screen').classList.remove('hidden');
+      document.getElementById('admin-password-input').focus();
+    }
+
+    // Event Listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Cek Login
+      checkAuthentication();
+
+      // Form Login
+      document.getElementById('admin-login-form').addEventListener('submit', handleLoginSubmit);
+
+      // Toggle Eye Password
+      document.getElementById('btn-toggle-pwd').addEventListener('click', () => {
+        const pwdInput = document.getElementById('admin-password-input');
+        const eyeIcon = document.getElementById('eye-icon');
+        if (pwdInput.type === 'password') {
+          pwdInput.type = 'text';
+          eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+        } else {
+          pwdInput.type = 'password';
+          eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+        }
+      });
+
+      // Tombol Logout
+      document.getElementById('btn-logout').addEventListener('click', handleLogout);
+
+      // 2. Filter Tabs
+      document.querySelectorAll('#range-tabs .filter-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('#range-tabs .filter-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          currentFilterRange = tab.dataset.range;
+          renderDashboard();
+        });
+      });
+
+      // 3. Refresh Button (Hening tanpa notif & tanpa animasi berulang)
+      document.getElementById('btn-refresh').addEventListener('click', () => {
+        fetchSupabaseData(true);
+      });
+
+      // 4. Test Event Button
+      document.getElementById('btn-test-event').addEventListener('click', sendTestEvent);
+
+      // 5. Search Leads
+      document.getElementById('lead-search').addEventListener('input', () => {
+        const forms = getFilteredEvents().filter(e => e.event_type === 'form');
+        renderLeadsTable(forms);
+      });
+
+      // 6. Export CSV
+      document.getElementById('btn-export-csv').addEventListener('click', exportLeadsCSV);
+
+      // Auto Refresh hening setiap 30 detik
+      setInterval(() => {
+        if (sessionStorage.getItem(AUTH_STORAGE_KEY) === 'true') {
+          fetchSupabaseData(true);
+        }
+      }, 30000);
+    });
+  </script>
+</body>
+</html>
