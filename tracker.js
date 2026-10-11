@@ -47,7 +47,7 @@ class PortofolioTracker {
   // Metadata browser
   getMetadata(extra = {}) {
     return {
-      path: window.location.pathname + window.location.hash,
+      path: (window.location.pathname.replace(/\/index\.html$/, '/') || '/').replace(/\.html$/, '') + window.location.hash,
       referrer: document.referrer || 'direct',
       screen: `${window.innerWidth}x${window.innerHeight}`,
       device: window.innerWidth < 768 ? 'Mobile' : (window.innerWidth < 1024 ? 'Tablet' : 'Desktop'),
