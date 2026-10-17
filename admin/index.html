@@ -61,7 +61,7 @@
     input, select, textarea { font: inherit; }
 
     /* ============================================================
-       3. HALAMAN LOGIN ADMIN (PASSWORD ONLY: @A7x4ever)
+       3. HALAMAN LOGIN ADMIN
        ============================================================ */
     #login-screen {
       position: fixed;
@@ -740,6 +740,221 @@
       opacity: 1;
     }
 
+    /* ============================================================
+       JOB SCRAPER HERO BANNER & BIG BUTTON (MCP APIFY)
+       ============================================================ */
+    .job-scraper-hero-banner {
+      background: linear-gradient(135deg, rgba(28, 28, 36, 0.95), rgba(18, 18, 22, 0.95));
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius-xl);
+      padding: 1.75rem 2rem;
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(207, 128, 71, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .job-scraper-hero-banner::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--cyan), var(--purple));
+    }
+    .job-hero-glow {
+      position: absolute;
+      top: -50px; right: -50px;
+      width: 250px; height: 250px;
+      background: radial-gradient(circle, rgba(207, 128, 71, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .job-hero-content {
+      flex: 1 1 540px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      position: relative;
+      z-index: 2;
+    }
+    .job-hero-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .job-hero-badge-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.65rem;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: var(--radius-pill);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .live-dot-pulse {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 2s infinite;
+    }
+    .job-hero-tag {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: var(--radius-pill);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    .job-hero-text h2 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .job-hero-text p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+    .job-hero-actors-list {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-top: 0.25rem;
+    }
+    .actor-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border);
+      padding: 0.3rem 0.65rem;
+      border-radius: var(--radius-sm);
+      color: var(--text);
+    }
+    .actor-chip-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+    .actor-chip-dot.linkedin { background: #38bdf8; }
+    .actor-chip-dot.indeed { background: #60a5fa; }
+    .actor-chip-dot.board { background: var(--purple); }
+    .actor-chip-dot.freelance { background: var(--cyan); }
+
+    .job-hero-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      align-items: flex-end;
+      position: relative;
+      z-index: 2;
+    }
+    @media (max-width: 900px) {
+      .job-hero-actions { align-items: stretch; width: 100%; }
+    }
+    .btn-job-hero-main {
+      background: linear-gradient(135deg, var(--accent), #e09158);
+      color: #000;
+      padding: 1.15rem 2rem;
+      border-radius: var(--radius-lg);
+      display: inline-flex;
+      align-items: center;
+      gap: 1.1rem;
+      box-shadow: 0 10px 30px var(--accent-glow), 0 0 0 1px rgba(255, 255, 255, 0.2);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn-job-hero-main:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(207, 128, 71, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.3);
+    }
+    .btn-hero-icon {
+      width: 44px; height: 44px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: #000;
+      flex-shrink: 0;
+    }
+    .btn-hero-text {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+    .btn-hero-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+    }
+    .btn-hero-sub {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.75);
+    }
+    .job-hero-quick-presets {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .quick-presets-label {
+      font-size: 0.75rem;
+      color: var(--text-subtle);
+    }
+    .quick-preset-link {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      padding: 0.25rem 0.55rem;
+      border-radius: var(--radius-pill);
+      transition: all 0.2s;
+    }
+    .quick-preset-link:hover {
+      color: #fff;
+      background: var(--accent-glow);
+      border-color: var(--accent);
+    }
+
+    /* Top Nav Job Scraper Button */
+    .btn-nav-job-scraper {
+      background: rgba(207, 128, 71, 0.12);
+      border: 1px solid var(--border-accent);
+      color: var(--accent);
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-pill);
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-nav-job-scraper:hover {
+      background: var(--accent);
+      color: #000;
+      box-shadow: 0 4px 15px var(--accent-glow);
+      transform: translateY(-1px);
+    }
+
     /* Responsive */
     @media (max-width: 1024px) {
       .kpi-grid { grid-template-columns: repeat(2, 1fr); }
@@ -752,13 +967,15 @@
       .kpi-grid { grid-template-columns: 1fr; }
       .top-actions { justify-content: space-between; }
       .kpi-value { font-size: 2rem; }
+      .btn-job-hero-main { width: 100%; justify-content: center; }
+      .job-hero-text h2 { font-size: 1.2rem; }
     }
   </style>
 </head>
 <body>
 
   <!-- ============================================================
-       3. HALAMAN LOGIN (PASSWORD: @A7x4ever)
+       3. HALAMAN LOGIN
        ============================================================ -->
   <div id="login-screen">
     <div class="login-box">
@@ -817,6 +1034,12 @@
           <span id="status-text">Supabase Terhubung</span>
         </div>
 
+        <!-- Tombol Job Scraper (MCP Apify) -->
+        <a href="jobs.html" class="btn-nav-job-scraper" title="Buka Fitur Cari Pekerjaan (Job Scraper MCP Apify)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          Cari Pekerjaan (MCP Apify)
+        </a>
+
         <!-- 4. Tombol Refresh (Tanpa notifikasi toast dan tanpa animasi card) -->
         <button class="btn btn-secondary" id="btn-refresh" title="Muat ulang data dari Supabase secara hening">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="refresh-icon"><path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
@@ -838,6 +1061,60 @@
         </button>
       </div>
     </header>
+
+    <!-- ============================================================
+         FEATURE HERO BANNER: CARI PEKERJAAN (JOB SCRAPER MCP APIFY)
+         ============================================================ -->
+    <section class="job-scraper-hero-banner">
+      <div class="job-hero-glow"></div>
+      <div class="job-hero-content">
+        <div class="job-hero-badge-row">
+          <span class="job-hero-badge-live">
+            <span class="live-dot-pulse"></span>
+            MCP Apify Terhubung
+          </span>
+          <span class="job-hero-tag">4 Actors Multi-Platform</span>
+          <span class="job-hero-tag">AI & Tech Career Hunter</span>
+        </div>
+        
+        <div class="job-hero-text">
+          <h2>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            Fitur Unggulan: Cari Lowongan & Proyek Otomatis
+          </h2>
+          <p>Scrape, cari, dan filter ribuan peluang karir secara real-time dari <strong>LinkedIn</strong>, <strong>Indeed</strong>, <strong>Job Board Multi-Platform</strong>, dan <strong>Freelancer.com</strong> menggunakan MCP Apify.</p>
+        </div>
+
+        <div class="job-hero-actors-list">
+          <div class="actor-chip"><span class="actor-chip-dot linkedin"></span> LinkedIn Jobs Scraper</div>
+          <div class="actor-chip"><span class="actor-chip-dot indeed"></span> Indeed Jobs Scraper</div>
+          <div class="actor-chip"><span class="actor-chip-dot board"></span> Multi-Board (Glassdoor/Google)</div>
+          <div class="actor-chip"><span class="actor-chip-dot freelance"></span> Freelancer.com Projects</div>
+        </div>
+      </div>
+
+      <div class="job-hero-actions">
+        <a href="jobs.html" class="btn-job-hero-main" id="btn-open-job-scraper" title="Buka Fitur Cari Pekerjaan Sekarang">
+          <div class="btn-hero-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="14" x="2" y="7" rx="2" ry="2"/>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+            </svg>
+          </div>
+          <div class="btn-hero-text">
+            <span class="btn-hero-title">Buka Fitur Cari Pekerjaan ↗</span>
+            <span class="btn-hero-sub">Scrape Sekarang via MCP Apify</span>
+          </div>
+        </a>
+
+        <div class="job-hero-quick-presets">
+          <span class="quick-presets-label">Pencarian Kilat:</span>
+          <a href="jobs.html?preset=ai-automator" class="quick-preset-link">🤖 AI Automator</a>
+          <a href="jobs.html?preset=fullstack" class="quick-preset-link">💻 Web & Supabase</a>
+          <a href="jobs.html?preset=freelance-high" class="quick-preset-link">💰 Freelance ($500+)</a>
+        </div>
+      </div>
+    </section>
 
     <!-- Filters & Time Controls -->
     <div class="controls-bar">
@@ -1065,8 +1342,8 @@
       table: 'portofolio'
     };
 
-    // Password Admin
-    const ADMIN_PASSWORD = '@A7x4ever';
+    // Hash Otentikasi Admin (SHA-256)
+    const AUTH_HASH = '746304f9a492b09fd939d4de15d8e3fd335503ba5cc003576754751e11d85603';
     const AUTH_STORAGE_KEY = 'ardi_admin_auth';
 
     // State Aplikasi
@@ -1685,10 +1962,15 @@
     }
 
     // ============================================================
-    // 3. LOGIKA OTENTIKASI LOGIN ADMIN (@A7x4ever)
+    // 3. LOGIKA OTENTIKASI LOGIN ADMIN (SECURE SHA-256)
     // ============================================================
+    async function hashAdminInput(str) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
     function checkAuthentication() {
-      const isAuth = sessionStorage.getItem(AUTH_STORAGE_KEY) === 'true';
+      const isAuth = sessionStorage.getItem(AUTH_STORAGE_KEY) === 'true' || localStorage.getItem(AUTH_STORAGE_KEY) === 'true';
       const loginScreen = document.getElementById('login-screen');
       if (isAuth) {
         loginScreen.classList.add('hidden');
@@ -1699,14 +1981,16 @@
       }
     }
 
-    function handleLoginSubmit(e) {
+    async function handleLoginSubmit(e) {
       e.preventDefault();
       const pwdInput = document.getElementById('admin-password-input');
       const errorMsg = document.getElementById('login-error-msg');
       const val = pwdInput.value;
+      const hashed = await hashAdminInput(val);
 
-      if (val === ADMIN_PASSWORD) {
+      if (hashed === AUTH_HASH) {
         sessionStorage.setItem(AUTH_STORAGE_KEY, 'true');
+        localStorage.setItem(AUTH_STORAGE_KEY, 'true');
         errorMsg.classList.remove('show');
         document.getElementById('login-screen').classList.add('hidden');
         fetchSupabaseData(true);
