@@ -728,6 +728,12 @@
       border-radius: 3px;
       animation: indeterminate 2s infinite linear;
     }
+    .run-progress-fill.completed {
+      animation: none !important;
+      width: 100% !important;
+      transform: none !important;
+      background: linear-gradient(90deg, var(--green), var(--cyan)) !important;
+    }
     @keyframes indeterminate {
       0% { transform: translateX(-100%); }
       100% { transform: translateX(350%); }
@@ -2052,96 +2058,180 @@
           const data = (await res.json()).data;
           const status = data.status;
 
-          statusHeading.textContent = `Status: ${status} (Memproses data lowongan...)`;
+          statusHeading.innerHTML = `<span class="pulse-dot"></span> Status: ${status} (Sedang memproses...)`;
 
           if (status === 'SUCCEEDED') {
             clearInterval(activeRunInterval);
-            statusHeading.textContent = 'Selesai! Mengunduh dataset hasil lowongan...';
+            statusHeading.innerHTML = `<span style="color: var(--cyan); font-weight: 600;">Mengambil hasil dari dataset Apify...</span>`;
             await fetchDatasetItems(datasetId || data.defaultDatasetId);
-            btn.classList.remove('running');
-            btnText.textContent = 'Jalankan Scraper Sekarang 🚀';
-            showToast('Scraping sukses! Data lowongan berhasil diambil.');
           } else if (status === 'FAILED' || status === 'ABORTED' || status === 'TIMED-OUT') {
             clearInterval(activeRunInterval);
             btn.classList.remove('running');
             btnText.textContent = 'Jalankan Scraper Sekarang 🚀';
-            statusHeading.textContent = `Scraping Berakhir dengan Status: ${status}`;
+            document.querySelector('.run-progress-fill')?.classList.remove('completed');
+            statusHeading.innerHTML = `<span style="color: var(--red); font-weight: 600;">Scraping Terhenti (${status})</span>`;
             showToast(`Scraper terhenti (${status}). Silakan periksa limit/kredit akun Apify Anda.`, '✕');
           } else {
-            setTimeout(poll, 2500);
+            setTimeout(poll, 2000);
           }
         } catch (e) {
           setTimeout(poll, 3000);
         }
       };
 
-      setTimeout(poll, 2000);
+      setTimeout(poll, 1500);
     }
 
     async function fetchDatasetItems(datasetId) {
+      const btn = document.getElementById('btn-run-scraper');
+      const btnText = document.getElementById('btn-run-text');
+      const statusHeading = document.getElementById('run-status-heading');
+      const progressFill = document.querySelector('.run-progress-fill');
+
       try {
         const res = await fetch(`https://api.apify.com/v2/datasets/${datasetId}/items?clean=true&token=${currentToken}`);
         if (!res.ok) throw new Error('Gagal mengambil dataset');
         const rawItems = await res.json();
+
+        btn.classList.remove('running');
+        btnText.textContent = 'Jalankan Scraper Sekarang 🚀';
+
+        if (!Array.isArray(rawItems) || rawItems.length === 0) {
+          statusHeading.innerHTML = `<span style="color: var(--yellow); font-weight: 600;">✓ Selesai: 0 lowongan ditemukan dengan kata kunci ini.</span>`;
+          if (progressFill) progressFill.classList.add('completed');
+          showToast('Scraping selesai, namun tidak ada lowongan yang sesuai kriteria.');
+          return;
+        }
+
         const normalized = rawItems.map(item => normalizeJobItem(item, activeActor));
-        
         allScrapedJobs = [...normalized, ...allScrapedJobs];
         renderFilteredJobs();
+
+        // Tandai progress bar penuh & status selesai (Hentikan animasi loading!)
+        if (progressFill) progressFill.classList.add('completed');
+        statusHeading.innerHTML = `<span style="color: var(--green); font-weight: 700;">✓ Selesai! ${normalized.length} Peluang Baru Berhasil Dimuat</span>`;
+        
+        // Scroll halus ke daftar hasil agar pengguna langsung melihat lowongan yang baru discrape
+        setTimeout(() => {
+          document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 350);
+
+        showToast(`Scraping sukses! ${normalized.length} peluang baru berhasil ditambahkan.`);
       } catch (err) {
+        btn.classList.remove('running');
+        btnText.textContent = 'Jalankan Scraper Sekarang 🚀';
+        if (progressFill) progressFill.classList.remove('completed');
+        statusHeading.innerHTML = `<span style="color: var(--red); font-weight: 600;">Gagal Memuat Dataset: ${err.message}</span>`;
         showToast('Gagal memuat dataset: ' + err.message, '✕');
       }
     }
 
     // ============================================================
-    // 6. NORMALIZATION ADAPTER
+    // 6. NORMALIZATION ADAPTER (KOMPATIBEL 4 ACTORS & FREELANCER)
     // ============================================================
+    function cleanHtmlEntities(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&#039;/g, "'")
+        .replace(/&quot;/g, '"')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
     function normalizeJobItem(item, sourceActor) {
-      const id = item.id || item.jobId || item.fccId || ('job_' + Math.random().toString(36).substr(2, 9));
-      let title = item.title || item.jobTitle || item.positionName || 'Untitled Position';
-      let company = item.companyName || item.company || item.hiringOrganization?.name || 'Perusahaan Terverifikasi';
-      let location = item.location || item.formattedLocation || item.jobLocation || 'Remote / Worldwide';
-      let url = item.applyUrl || item.originalApplyUrl || item.jobUrl || item.link || item.url || '#';
-      let description = item.descriptionText || item.description || item.snippet || item.jobDescriptionText || '';
+      const id = item.id || item.jobId || item.project_id || item.fccId || ('job_' + Math.random().toString(36).substr(2, 9));
       
-      // Platform detection
+      // Judul lowongan / nama proyek
+      let rawTitle = item.title || item.jobTitle || item.project_name || item.positionName || item.name || 'Peluang Karir / Proyek';
+      let title = cleanHtmlEntities(rawTitle);
+
+      // Perusahaan / Klien
+      let company = item.companyName || item.company || item.hiringOrganization?.name;
+      if (!company) {
+        if (sourceActor.includes('freelancer') || item.source === 'freelancer.com') {
+          company = 'Klien Freelancer.com';
+        } else {
+          company = 'Perusahaan Terverifikasi';
+        }
+      }
+
+      // Lokasi
+      let location = item.location || item.formattedLocation || item.jobLocation;
+      if (!location) {
+        if (sourceActor.includes('freelancer') || item.source === 'freelancer.com') {
+          location = 'Remote (Global Freelance)';
+        } else {
+          location = 'Remote / Worldwide';
+        }
+      }
+
+      // URL
+      let url = item.url || item.applyUrl || item.originalApplyUrl || item.jobUrl || item.link || '#';
+
+      // Deskripsi
+      let rawDesc = item.project_desc_text || item.project_desc || item.descriptionText || item.description || item.snippet || item.jobDescriptionText || '';
+      let description = cleanHtmlEntities(rawDesc);
+
+      // Platform
       let platform = 'LinkedIn';
-      if (sourceActor.includes('indeed')) platform = 'Indeed';
-      else if (sourceActor.includes('freelancer')) platform = 'Freelancer';
+      if (sourceActor.includes('indeed') || item.source === 'indeed') platform = 'Indeed';
+      else if (sourceActor.includes('freelancer') || item.source === 'freelancer.com') platform = 'Freelancer';
       else if (sourceActor.includes('job-board')) {
         platform = item.site ? capitalize(item.site) : 'Multi-Board';
       }
 
-      // Salary detection
-      let salary = item.salary || item.salaryText || item.budget || '';
+      // Gaji / Budget
+      let salary = '';
       let salaryNum = 0;
-      if (item.minBudget && item.maxBudget) {
+      if (item.budget_range) {
+        salary = item.budget_range + (item.budget_range.includes('$') ? ' USD' : '');
+        const nums = item.budget_range.match(/\d[\d,.]*/g);
+        if (nums && nums.length) {
+          salaryNum = parseFloat(nums[nums.length - 1].replace(/,/g, '')) || 0;
+        }
+      } else if (item.minBudget && item.maxBudget) {
         salary = `$${item.minBudget} - $${item.maxBudget} USD`;
         salaryNum = (item.minBudget + item.maxBudget) / 2;
       } else if (item.salaryMin && item.salaryMax) {
         salary = `$${item.salaryMin.toLocaleString()} - $${item.salaryMax.toLocaleString()}/thn`;
         salaryNum = (item.salaryMin + item.salaryMax) / 2;
-      } else if (!salary) {
-        salary = 'Kompetitif / Sesuai Pengalaman';
+      } else if (item.bid_avg) {
+        salary = `Estimasi: ${item.bid_avg} (Rata-rata Bid)`;
+        const bnum = parseFloat(String(item.bid_avg).replace(/[^0-9.]/g, ''));
+        if (bnum) salaryNum = bnum;
+      } else if (item.salary || item.salaryText) {
+        salary = item.salary || item.salaryText;
+        const snum = parseFloat(String(salary).replace(/[^0-9.]/g, ''));
+        if (snum) salaryNum = snum;
+      } else {
+        salary = 'Kompetitif / Sesuai Kesepakatan';
       }
 
-      // Remote detection
+      // Remote
       const isRemote = Boolean(
         item.isRemote || 
-        item.workplaceType === 'Remote' || 
+        sourceActor.includes('freelancer') ||
+        (item.workplaceType && item.workplaceType.toLowerCase().includes('remote')) || 
         location.toLowerCase().includes('remote') || 
         title.toLowerCase().includes('remote') ||
         description.toLowerCase().includes('remote')
       );
 
-      // Extract skills
+      // Skills
       let skills = [];
-      if (Array.isArray(item.skills)) {
-        skills = item.skills.map(s => typeof s === 'string' ? s : s.name || '');
+      if (Array.isArray(item.skills) && item.skills.length > 0) {
+        skills = item.skills.map(s => typeof s === 'string' ? s : s.name || '').filter(Boolean).slice(0, 6);
+      } else if (Array.isArray(item.skills_info) && item.skills_info.length > 0) {
+        skills = item.skills_info.map(s => s.name).filter(Boolean).slice(0, 6);
       } else {
         const textToSearch = (title + ' ' + description).toLowerCase();
-        const techPool = ['AI Automation', 'n8n', 'Supabase', 'Next.js', 'Python', 'React', 'TypeScript', 'Meta Ads', 'Google Ads', 'Make.com', 'FastAPI', 'Node.js', 'Tailwind', 'PostgreSQL'];
-        skills = techPool.filter(tech => textToSearch.includes(tech.toLowerCase())).slice(0, 4);
-        if (skills.length === 0) skills = ['AI Automator', 'Web System'];
+        const techPool = ['AI Automation', 'n8n', 'Supabase', 'Next.js', 'Python', 'React', 'TypeScript', 'Meta Ads', 'Google Ads', 'Make.com', 'FastAPI', 'Node.js', 'Tailwind', 'PostgreSQL', 'HTML', 'WordPress', 'PHP'];
+        skills = techPool.filter(tech => textToSearch.includes(tech.toLowerCase())).slice(0, 5);
+        if (skills.length === 0) skills = ['Web Development', 'Digital System'];
       }
 
       return {
@@ -2156,7 +2246,7 @@
         salaryNum,
         isRemote,
         skills,
-        postedTime: item.postedTimeAgo || item.datePosted || 'Baru Saja',
+        postedTime: item.time_left ? `Sisa: ${item.time_left}` : (item.postedTimeAgo || item.datePosted || 'Baru Saja'),
         raw: item
       };
     }
