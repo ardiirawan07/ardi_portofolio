@@ -5,6 +5,14 @@
     {
       "source": "/admin",
       "destination": "/admin/index.html"
+    },
+    {
+      "source": "/admin/jobs",
+      "destination": "/admin/jobs.html"
+    },
+    {
+      "source": "/jobs",
+      "destination": "/jobs.html"
     }
   ]
 }
