@@ -625,6 +625,30 @@
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
     }
+    .country-quick-chips {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      margin-top: 0.35rem;
+    }
+    .country-chip {
+      font-size: 0.6875rem;
+      padding: 0.18rem 0.5rem;
+      border-radius: var(--radius-pill);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      line-height: 1.3;
+    }
+    .country-chip:hover {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: #fff;
+      transform: translateY(-1px);
+    }
 
     /* FORM SUBMIT ACTIONS */
     .form-actions-bar {
@@ -1355,25 +1379,71 @@
         <button type="button" class="preset-chip" onclick="applyPreset('freelance-high')">💰 Freelance High-Budget ($500+)</button>
       </div>
 
+      <!-- POPULAR COUNTRIES DATALIST (Bisa dipilih langsung dari dropdown atau diketik manual) -->
+      <datalist id="popular-countries-list">
+        <option value="Remote">🌐 Remote / WFH (Worldwide)</option>
+        <option value="Indonesia">🇮🇩 Indonesia</option>
+        <option value="United States">🇺🇸 United States (USA)</option>
+        <option value="Singapore">🇸🇬 Singapore</option>
+        <option value="Australia">🇦🇺 Australia</option>
+        <option value="United Kingdom">🇬🇧 United Kingdom (UK)</option>
+        <option value="Germany">🇩🇪 Germany (Jerman)</option>
+        <option value="Canada">🇨🇦 Canada</option>
+        <option value="Netherlands">🇳🇱 Netherlands (Belanda)</option>
+        <option value="United Arab Emirates">🇦🇪 United Arab Emirates (Dubai/UAE)</option>
+        <option value="Japan">🇯🇵 Japan (Jepang)</option>
+        <option value="Malaysia">🇲🇾 Malaysia</option>
+        <option value="France">🇫🇷 France</option>
+        <option value="Switzerland">🇨🇭 Switzerland</option>
+        <option value="Sweden">🇸🇪 Sweden</option>
+        <option value="Ireland">🇮🇪 Ireland</option>
+        <option value="New Zealand">🇳🇿 New Zealand</option>
+        <option value="India">🇮🇳 India</option>
+        <option value="Philippines">🇵🇭 Philippines</option>
+        <option value="Vietnam">🇻🇳 Vietnam</option>
+        <option value="Thailand">🇹🇭 Thailand</option>
+        <option value="Worldwide">🌍 Worldwide (Global)</option>
+      </datalist>
+
       <!-- FORM FIELDS CONTAINER (Dynamically switched depending on active actor) -->
       <form id="scraper-input-form" onsubmit="event.preventDefault(); handleRunScraper();">
         
         <!-- ================= FORM: LINKEDIN ================= -->
         <div id="form-fields-linkedin" class="form-fields-grid">
           <div class="form-field">
-            <label class="form-label">Kata Kunci / Judul Pekerjaan *</label>
+            <label class="form-label" for="li-keywords">Kata Kunci / Judul Pekerjaan *</label>
             <input type="text" id="li-keywords" class="form-input" placeholder="contoh: AI Automation, Full Stack Developer" value="AI Automation Engineer" required>
             <span class="form-hint">Job title, skill teknis, atau role yang dicari</span>
           </div>
 
           <div class="form-field">
-            <label class="form-label">Lokasi Target</label>
-            <input type="text" id="li-location" class="form-input" placeholder="contoh: Remote, Indonesia, Worldwide" value="Remote">
-            <span class="form-hint">Ketik 'Remote' atau kota/negara</span>
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <label class="form-label" for="li-location">Lokasi Target / Negara</label>
+              <span style="font-size: 0.6875rem; color: var(--accent);">Bisa pilih / ketik negara</span>
+            </div>
+            <input 
+              type="text" 
+              id="li-location" 
+              list="popular-countries-list" 
+              class="form-input" 
+              placeholder="Pilih atau ketik negara/kota (cth: Indonesia, Singapore, Remote)..." 
+              value="Remote"
+            >
+            <div class="country-quick-chips">
+              <span style="font-size: 0.6875rem; color: var(--text-subtle); margin-right: 2px;">Cepat:</span>
+              <button type="button" class="country-chip" onclick="setCountry('li-location', 'Remote')">🌐 Remote</button>
+              <button type="button" class="country-chip" onclick="setCountry('li-location', 'Indonesia')">🇮🇩 Indonesia</button>
+              <button type="button" class="country-chip" onclick="setCountry('li-location', 'United States')">🇺🇸 USA</button>
+              <button type="button" class="country-chip" onclick="setCountry('li-location', 'Singapore')">🇸🇬 Singapore</button>
+              <button type="button" class="country-chip" onclick="setCountry('li-location', 'Australia')">🇦🇺 Australia</button>
+              <button type="button" class="country-chip" onclick="setCountry('li-location', 'United Kingdom')">🇬🇧 UK</button>
+              <button type="button" class="country-chip" onclick="setCountry('li-location', 'Germany')">🇩🇪 Germany</button>
+            </div>
+            <span class="form-hint">Ketik nama negara/kota bebas atau pilih dari dropdown</span>
           </div>
 
           <div class="form-field">
-            <label class="form-label">Waktu Tayang (Date Posted)</label>
+            <label class="form-label" for="li-datePosted">Waktu Tayang (Date Posted)</label>
             <select id="li-datePosted" class="form-select">
               <option value="">Semua Waktu</option>
               <option value="r86400">24 Jam Terakhir</option>
@@ -1384,7 +1454,7 @@
           </div>
 
           <div class="form-field">
-            <label class="form-label">Batas Maksimal Hasil (Limit)</label>
+            <label class="form-label" for="li-limit">Batas Maksimal Hasil (Limit)</label>
             <select id="li-limit" class="form-select">
               <option value="10">10 Lowongan (Cepat)</option>
               <option value="25" selected>25 Lowongan</option>
@@ -1394,7 +1464,7 @@
           </div>
 
           <div class="form-field">
-            <label class="form-label">Target Perusahaan (Opsional)</label>
+            <label class="form-label" for="li-companies">Target Perusahaan (Opsional)</label>
             <input type="text" id="li-companies" class="form-input" placeholder="Google, OpenAI, Tokopedia (pisahkan koma)">
             <span class="form-hint">Hanya scrape lowongan dari perusahaan ini</span>
           </div>
@@ -1417,17 +1487,38 @@
         <!-- ================= FORM: JOB BOARD MULTI ================= -->
         <div id="form-fields-jobboard" class="form-fields-grid" style="display: none;">
           <div class="form-field">
-            <label class="form-label">Search Term / Judul *</label>
+            <label class="form-label" for="jb-searchTerm">Search Term / Judul *</label>
             <input type="text" id="jb-searchTerm" class="form-input" placeholder="contoh: n8n Automator, Next.js Developer" value="AI Workflow Automator">
           </div>
 
           <div class="form-field">
-            <label class="form-label">Lokasi</label>
-            <input type="text" id="jb-location" class="form-input" placeholder="contoh: Worldwide, Remote, Jakarta" value="Remote">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <label class="form-label" for="jb-location">Lokasi / Negara Target</label>
+              <span style="font-size: 0.6875rem; color: var(--accent);">Bisa pilih / ketik negara</span>
+            </div>
+            <input 
+              type="text" 
+              id="jb-location" 
+              list="popular-countries-list" 
+              class="form-input" 
+              placeholder="Pilih atau ketik negara/kota (cth: Indonesia, Singapore, Remote)..." 
+              value="Remote"
+            >
+            <div class="country-quick-chips">
+              <span style="font-size: 0.6875rem; color: var(--text-subtle); margin-right: 2px;">Cepat:</span>
+              <button type="button" class="country-chip" onclick="setCountry('jb-location', 'Remote')">🌐 Remote</button>
+              <button type="button" class="country-chip" onclick="setCountry('jb-location', 'Indonesia')">🇮🇩 Indonesia</button>
+              <button type="button" class="country-chip" onclick="setCountry('jb-location', 'United States')">🇺🇸 USA</button>
+              <button type="button" class="country-chip" onclick="setCountry('jb-location', 'Singapore')">🇸🇬 Singapore</button>
+              <button type="button" class="country-chip" onclick="setCountry('jb-location', 'Australia')">🇦🇺 Australia</button>
+              <button type="button" class="country-chip" onclick="setCountry('jb-location', 'United Kingdom')">🇬🇧 UK</button>
+              <button type="button" class="country-chip" onclick="setCountry('jb-location', 'Germany')">🇩🇪 Germany</button>
+            </div>
+            <span class="form-hint">Scraper akan mencari lowongan di negara atau regional yang dipilih</span>
           </div>
 
           <div class="form-field">
-            <label class="form-label">Tipe Pekerjaan</label>
+            <label class="form-label" for="jb-jobType">Tipe Pekerjaan</label>
             <select id="jb-jobType" class="form-select">
               <option value="">Semua Tipe</option>
               <option value="fulltime">Full-time</option>
@@ -1450,7 +1541,7 @@
           </div>
 
           <div class="form-field">
-            <label class="form-label">Maksimal Total Hasil</label>
+            <label class="form-label" for="jb-maxResults">Maksimal Total Hasil</label>
             <select id="jb-maxResults" class="form-select">
               <option value="20" selected>20 Lowongan</option>
               <option value="50">50 Lowongan</option>
@@ -1466,30 +1557,58 @@
         <!-- ================= FORM: INDEED ================= -->
         <div id="form-fields-indeed" class="form-fields-grid" style="display: none;">
           <div class="form-field">
-            <label class="form-label">Query Pencarian *</label>
+            <label class="form-label" for="id-query">Query Pencarian *</label>
             <input type="text" id="id-query" class="form-input" placeholder="contoh: Python Developer, Automation Engineer" value="Supabase Web Developer">
           </div>
 
           <div class="form-field">
-            <label class="form-label">Lokasi</label>
-            <input type="text" id="id-location" class="form-input" placeholder="contoh: Remote, Indonesia, Singapore" value="Remote">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <label class="form-label" for="id-location">Lokasi Kota / Remote</label>
+              <span style="font-size: 0.6875rem; color: var(--accent);">Bisa pilih / ketik negara</span>
+            </div>
+            <input 
+              type="text" 
+              id="id-location" 
+              list="popular-countries-list" 
+              class="form-input" 
+              placeholder="Pilih atau ketik kota/wilayah (cth: Remote, Jakarta, Singapore)..." 
+              value="Remote"
+            >
+            <div class="country-quick-chips">
+              <span style="font-size: 0.6875rem; color: var(--text-subtle); margin-right: 2px;">Cepat:</span>
+              <button type="button" class="country-chip" onclick="setIndeedCountry('Remote', 'us')">🌐 Remote (Global)</button>
+              <button type="button" class="country-chip" onclick="setIndeedCountry('Indonesia', 'id')">🇮🇩 Indonesia</button>
+              <button type="button" class="country-chip" onclick="setIndeedCountry('United States', 'us')">🇺🇸 USA</button>
+              <button type="button" class="country-chip" onclick="setIndeedCountry('Singapore', 'sg')">🇸🇬 Singapore</button>
+              <button type="button" class="country-chip" onclick="setIndeedCountry('United Kingdom', 'gb')">🇬🇧 UK</button>
+              <button type="button" class="country-chip" onclick="setIndeedCountry('Australia', 'au')">🇦🇺 Australia</button>
+              <button type="button" class="country-chip" onclick="setIndeedCountry('Germany', 'de')">🇩🇪 Germany</button>
+            </div>
+            <span class="form-hint">Ketik nama kota/negara atau klik tombol rekomendasi cepat</span>
           </div>
 
           <div class="form-field">
-            <label class="form-label">Kode Negara Indeed</label>
+            <label class="form-label" for="id-country">Subdomain Negara Indeed</label>
             <select id="id-country" class="form-select">
-              <option value="us" selected>Amerika Serikat (us)</option>
-              <option value="id">Indonesia (id)</option>
-              <option value="sg">Singapura (sg)</option>
-              <option value="gb">Inggris / UK (gb)</option>
-              <option value="ca">Kanada (ca)</option>
-              <option value="au">Australia (au)</option>
-              <option value="de">Jerman (de)</option>
+              <option value="us" selected>🇺🇸 Amerika Serikat (us)</option>
+              <option value="id">🇮🇩 Indonesia (id)</option>
+              <option value="sg">🇸🇬 Singapura (sg)</option>
+              <option value="gb">🇬🇧 Inggris / UK (gb)</option>
+              <option value="ca">🇨🇦 Kanada (ca)</option>
+              <option value="au">🇦🇺 Australia (au)</option>
+              <option value="de">🇩🇪 Jerman (de)</option>
+              <option value="nl">🇳🇱 Belanda (nl)</option>
+              <option value="jp">🇯🇵 Jepang (jp)</option>
+              <option value="ae">🇦🇪 UAE / Dubai (ae)</option>
+              <option value="my">🇲🇾 Malaysia (my)</option>
+              <option value="in">🇮🇳 India (in)</option>
+              <option value="fr">🇫🇷 Prancis (fr)</option>
             </select>
+            <span class="form-hint">Domain server Indeed yang akan di-query</span>
           </div>
 
           <div class="form-field">
-            <label class="form-label">Diposting Dalam</label>
+            <label class="form-label" for="id-postedWithinDays">Diposting Dalam</label>
             <select id="id-postedWithinDays" class="form-select">
               <option value="1">24 Jam Terakhir</option>
               <option value="3">3 Hari Terakhir</option>
@@ -1500,7 +1619,7 @@
           </div>
 
           <div class="form-field">
-            <label class="form-label">Jumlah Hasil (Count)</label>
+            <label class="form-label" for="id-count">Jumlah Hasil (Count)</label>
             <select id="id-count" class="form-select">
               <option value="15">15 Lowongan</option>
               <option value="30" selected>30 Lowongan</option>
@@ -1510,7 +1629,7 @@
           </div>
 
           <div class="form-field">
-            <label class="form-label">Radius (km)</label>
+            <label class="form-label" for="id-radiusKm">Radius (km)</label>
             <select id="id-radiusKm" class="form-select">
               <option value="25" selected>25 km</option>
               <option value="50">50 km</option>
@@ -1522,12 +1641,37 @@
         <!-- ================= FORM: FREELANCER.COM ================= -->
         <div id="form-fields-freelancer" class="form-fields-grid" style="display: none;">
           <div class="form-field">
-            <label class="form-label">Kata Kunci / Keahlian Proyek *</label>
+            <label class="form-label" for="fl-keyword">Kata Kunci / Keahlian Proyek *</label>
             <input type="text" id="fl-keyword" class="form-input" placeholder="contoh: n8n, Web Scraping, AI Automation" value="AI Automation">
           </div>
 
           <div class="form-field">
-            <label class="form-label">Kategori Proyek</label>
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <label class="form-label" for="fl-country">Preferensi Negara Klien</label>
+              <span style="font-size: 0.6875rem; color: var(--accent);">Bisa pilih / ketik negara</span>
+            </div>
+            <input 
+              type="text" 
+              id="fl-country" 
+              list="popular-countries-list" 
+              class="form-input" 
+              placeholder="Semua Negara (atau ketik: United States, Australia, UK)..." 
+              value=""
+            >
+            <div class="country-quick-chips">
+              <span style="font-size: 0.6875rem; color: var(--text-subtle); margin-right: 2px;">Cepat:</span>
+              <button type="button" class="country-chip" onclick="setCountry('fl-country', '')">Semua</button>
+              <button type="button" class="country-chip" onclick="setCountry('fl-country', 'United States')">🇺🇸 USA</button>
+              <button type="button" class="country-chip" onclick="setCountry('fl-country', 'Australia')">🇦🇺 Australia</button>
+              <button type="button" class="country-chip" onclick="setCountry('fl-country', 'United Kingdom')">🇬🇧 UK</button>
+              <button type="button" class="country-chip" onclick="setCountry('fl-country', 'Canada')">🇨🇦 Canada</button>
+              <button type="button" class="country-chip" onclick="setCountry('fl-country', 'Singapore')">🇸🇬 Singapore</button>
+            </div>
+            <span class="form-hint">Filter negara asal klien proyek Freelancer.com</span>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="fl-category">Kategori Proyek</label>
             <select id="fl-category" class="form-select">
               <option value="web-development" selected>Web Development</option>
               <option value="artificial-intelligence">Artificial Intelligence</option>
@@ -1539,7 +1683,7 @@
           </div>
 
           <div class="form-field">
-            <label class="form-label">Tipe Pembayaran Proyek</label>
+            <label class="form-label" for="fl-jobType">Tipe Pembayaran Proyek</label>
             <select id="fl-jobType" class="form-select">
               <option value="all" selected>Semua (Fixed & Hourly)</option>
               <option value="fixed">Fixed Price Only</option>
@@ -1548,12 +1692,12 @@
           </div>
 
           <div class="form-field">
-            <label class="form-label">Min Budget (USD)</label>
+            <label class="form-label" for="fl-minBudget">Min Budget (USD)</label>
             <input type="number" id="fl-minBudget" class="form-input" placeholder="0" value="250">
           </div>
 
           <div class="form-field">
-            <label class="form-label">Max Budget (USD)</label>
+            <label class="form-label" for="fl-maxBudget">Max Budget (USD)</label>
             <input type="number" id="fl-maxBudget" class="form-input" placeholder="5000" value="5000">
           </div>
 
@@ -1665,6 +1809,21 @@
           <option value="all">Semua Tipe Kerja</option>
           <option value="remote">Hanya Remote (WFH)</option>
           <option value="onsite">On-Site / Hybrid</option>
+        </select>
+
+        <select id="filter-country" class="filter-select" onchange="renderFilteredJobs()">
+          <option value="all">🌍 Semua Negara / Lokasi</option>
+          <option value="remote">🌐 Hanya Remote (WFH)</option>
+          <option value="indonesia">🇮🇩 Indonesia</option>
+          <option value="united states|usa|us|america">🇺🇸 United States</option>
+          <option value="singapore">🇸🇬 Singapore</option>
+          <option value="australia">🇦🇺 Australia</option>
+          <option value="united kingdom|uk|london|britain">🇬🇧 United Kingdom</option>
+          <option value="germany|deutschland|berlin">🇩🇪 Germany</option>
+          <option value="canada">🇨🇦 Canada</option>
+          <option value="japan|tokyo">🇯🇵 Japan</option>
+          <option value="malaysia">🇲🇾 Malaysia</option>
+          <option value="netherlands|amsterdam">🇳🇱 Netherlands</option>
         </select>
 
         <select id="filter-sort" class="filter-select" onchange="renderFilteredJobs()">
@@ -1895,8 +2054,26 @@
     }
 
     // ============================================================
-    // 4. PRESETS
+    // 4. PRESETS & COUNTRY SELECTION HELPERS
     // ============================================================
+    function setCountry(inputId, countryName) {
+      const el = document.getElementById(inputId);
+      if (el) {
+        el.value = countryName;
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+        showToast(`Lokasi/Negara diatur ke: ${countryName || 'Semua Negara'}`);
+      }
+    }
+
+    function setIndeedCountry(loc, code) {
+      const locInput = document.getElementById('id-location');
+      const countrySelect = document.getElementById('id-country');
+      if (locInput) locInput.value = loc;
+      if (countrySelect && code) countrySelect.value = code;
+      showToast(`Indeed diatur: ${loc} (${code.toUpperCase()})`);
+    }
+
     function applyPreset(presetType) {
       if (presetType === 'ai-automator') {
         // LinkedIn / General
@@ -1905,6 +2082,7 @@
         document.getElementById('jb-searchTerm').value = 'AI Automation Engineer';
         document.getElementById('jb-location').value = 'Remote';
         document.getElementById('id-query').value = 'AI Automation n8n';
+        document.getElementById('id-location').value = 'Remote';
         document.getElementById('fl-keyword').value = 'AI Automation';
         document.getElementById('fl-category').value = 'artificial-intelligence';
         showToast('Preset "AI Workflow Automator" diterapkan!');
@@ -1912,7 +2090,9 @@
         document.getElementById('li-keywords').value = 'Full Stack Developer Supabase';
         document.getElementById('li-location').value = 'Remote';
         document.getElementById('jb-searchTerm').value = 'Next.js Supabase Web Developer';
+        document.getElementById('jb-location').value = 'Remote';
         document.getElementById('id-query').value = 'Full Stack Supabase';
+        document.getElementById('id-location').value = 'Remote';
         document.getElementById('fl-keyword').value = 'Web Development Supabase';
         document.getElementById('fl-category').value = 'web-development';
         showToast('Preset "Full Stack & Supabase" diterapkan!');
@@ -1926,6 +2106,7 @@
       } else if (presetType === 'freelance-high') {
         document.getElementById('tab-freelancer').click();
         document.getElementById('fl-keyword').value = 'AI Automation n8n';
+        document.getElementById('fl-country').value = 'United States';
         document.getElementById('fl-minBudget').value = 500;
         document.getElementById('fl-maxBudget').value = 5000;
         document.getElementById('fl-sortBy').value = 'budget';
@@ -1983,15 +2164,24 @@
         }
       } else if (activeActor === 'openclawai/job-board-scraper') {
         const selectedSites = Array.from(document.querySelectorAll('input[name="jb-sites"]:checked')).map(cb => cb.value);
+        const jbLocationVal = document.getElementById('jb-location').value || 'Remote';
         payload = {
           searchTerm: document.getElementById('jb-searchTerm').value,
-          location: document.getElementById('jb-location').value || 'Remote',
+          location: jbLocationVal,
           sites: selectedSites.length ? selectedSites : ['linkedin', 'indeed'],
           isRemote: document.getElementById('jb-isRemote').checked,
           jobType: document.getElementById('jb-jobType').value,
           maxResults: parseInt(document.getElementById('jb-maxResults').value, 10) || 20,
           descriptionFormat: 'markdown'
         };
+        // Auto-detect Indeed country domain if country is specified
+        const locLower = jbLocationVal.toLowerCase();
+        if (locLower.includes('indonesia')) payload.countryIndeed = 'id';
+        else if (locLower.includes('singapore')) payload.countryIndeed = 'sg';
+        else if (locLower.includes('united kingdom') || locLower.includes('uk')) payload.countryIndeed = 'gb';
+        else if (locLower.includes('australia')) payload.countryIndeed = 'au';
+        else if (locLower.includes('canada')) payload.countryIndeed = 'ca';
+        else if (locLower.includes('germany')) payload.countryIndeed = 'de';
       } else if (activeActor === 'curious_coder/indeed-scraper') {
         payload = {
           query: document.getElementById('id-query').value,
@@ -2002,8 +2192,10 @@
           radiusKm: parseInt(document.getElementById('id-radiusKm').value, 10) || 25
         };
       } else if (activeActor === 'shahidirfan/freelancer-com-scraper') {
+        const flCountry = document.getElementById('fl-country')?.value?.trim();
+        const baseKeyword = document.getElementById('fl-keyword').value;
         payload = {
-          keyword: document.getElementById('fl-keyword').value,
+          keyword: flCountry ? `${baseKeyword} ${flCountry}` : baseKeyword,
           category: document.getElementById('fl-category').value,
           jobType: document.getElementById('fl-jobType').value,
           minBudget: parseInt(document.getElementById('fl-minBudget').value, 10) || 0,
@@ -2265,7 +2457,7 @@
           id: 'demo-1',
           title: 'Senior AI Workflow & Automation Architect',
           company: 'Nexus Flow Technologies',
-          location: 'Worldwide (100% Remote)',
+          location: 'United States (100% Remote)',
           url: 'https://linkedin.com',
           description: 'Mencari spesialis AI Automator yang menguasai n8n, Make, OpenAI API, dan integrasi webhook Supabase untuk membangun workflow autonomous end-to-end bagi klien enterprise tier-1.',
           platform: 'LinkedIn',
@@ -2279,7 +2471,7 @@
           id: 'demo-2',
           title: 'Full Stack Engineer (Next.js 15, Supabase & Tailwind)',
           company: 'Aether Cloud Studios',
-          location: 'Remote (APAC / Indonesia OK)',
+          location: 'Jakarta, Indonesia (Remote APAC)',
           url: 'https://indeed.com',
           description: 'Membangun aplikasi SaaS modern dengan Next.js App Router, Supabase Auth/RLS, database relational, dan dashboard analitik interaktif performa tinggi.',
           platform: 'Indeed',
@@ -2293,7 +2485,7 @@
           id: 'demo-3',
           title: 'AI Lead Generation & Meta Ads Automation System',
           company: 'GrowthForge Global Ltd',
-          location: 'Remote',
+          location: 'London, United Kingdom (Remote)',
           url: 'https://freelancer.com',
           description: 'Dibutuhkan freelancer ahli untuk membuat sistem otomatisasi iklan Meta + Google Ads yang terhubung dengan CRM dan auto-responder WhatsApp/Email menggunakan n8n dan webhook.',
           platform: 'Freelancer',
@@ -2307,13 +2499,13 @@
           id: 'demo-4',
           title: 'Generative AI Prompt & Workflow Engineer',
           company: 'Cognitive Matrix Labs',
-          location: 'San Francisco, CA (Remote Friendly)',
+          location: 'San Francisco, CA, United States (Hybrid)',
           url: 'https://glassdoor.com',
           description: 'Kembangkan agen AI berbasis MCP (Model Context Protocol), perancangan RAG kustom, integrasi API, serta optimasi prompt engineering untuk enterprise knowledge-base.',
           platform: 'Glassdoor',
           salary: '$110,000 - $150,000 / tahun',
           salaryNum: 130000,
-          isRemote: true,
+          isRemote: false,
           skills: ['AI Automation', 'Python', 'FastAPI', 'Tailwind'],
           postedTime: '1 hari yang lalu'
         },
@@ -2321,13 +2513,13 @@
           id: 'demo-5',
           title: 'Full Stack Web & Database System Builder',
           company: 'Sovereign Digital Media',
-          location: 'Jakarta / Remote',
+          location: 'Jakarta, Indonesia (Hybrid / On-Site)',
           url: 'https://linkedin.com',
           description: 'Pengembangan arsitektur web responsif, integrasi database Supabase PostgreSQL, form tracking leads kustom, dan optimasi kecepatan web super cepat.',
           platform: 'LinkedIn',
           salary: 'Rp 22.000.000 - Rp 35.000.000 / bln',
           salaryNum: 25000,
-          isRemote: true,
+          isRemote: false,
           skills: ['Supabase', 'Next.js', 'PostgreSQL', 'Tailwind'],
           postedTime: '4 jam yang lalu'
         },
@@ -2335,7 +2527,7 @@
           id: 'demo-6',
           title: 'Multi-Agent Autonomous Research & Scraper Bot',
           company: 'HyperScale Venture Labs',
-          location: 'Remote Gig',
+          location: 'Sydney, Australia (Remote Gig)',
           url: 'https://freelancer.com',
           description: 'Membutuhkan developer freelance untuk membuat scraper multi-portal (LinkedIn & Indeed) menggunakan Apify API dan integrasi ke database internal Supabase.',
           platform: 'Freelancer',
@@ -2359,6 +2551,7 @@
       const query = document.getElementById('search-filter-input').value.toLowerCase().trim();
       const platformFilter = document.getElementById('filter-platform').value;
       const workplaceFilter = document.getElementById('filter-workplace').value;
+      const countryFilter = document.getElementById('filter-country')?.value || 'all';
       const sortFilter = document.getElementById('filter-sort').value;
 
       let filtered = allScrapedJobs.filter(job => {
@@ -2367,8 +2560,9 @@
           const matchTitle = job.title.toLowerCase().includes(query);
           const matchCompany = job.company.toLowerCase().includes(query);
           const matchDesc = job.description.toLowerCase().includes(query);
+          const matchLoc = (job.location || '').toLowerCase().includes(query);
           const matchSkills = job.skills.some(s => s.toLowerCase().includes(query));
-          if (!matchTitle && !matchCompany && !matchDesc && !matchSkills) return false;
+          if (!matchTitle && !matchCompany && !matchDesc && !matchLoc && !matchSkills) return false;
         }
 
         // Platform filter
@@ -2379,6 +2573,20 @@
         // Workplace filter
         if (workplaceFilter === 'remote' && !job.isRemote) return false;
         if (workplaceFilter === 'onsite' && job.isRemote) return false;
+
+        // Country filter
+        if (countryFilter !== 'all') {
+          if (countryFilter === 'remote') {
+            if (!job.isRemote) return false;
+          } else {
+            const keys = countryFilter.split('|');
+            const locLow = (job.location || '').toLowerCase();
+            const descLow = (job.description || '').toLowerCase();
+            const titleLow = (job.title || '').toLowerCase();
+            const match = keys.some(k => locLow.includes(k) || descLow.includes(k) || titleLow.includes(k));
+            if (!match) return false;
+          }
+        }
 
         return true;
       });
