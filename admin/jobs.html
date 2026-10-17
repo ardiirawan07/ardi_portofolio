@@ -1908,8 +1908,13 @@
        SCRIPTS: AUTH, APIFY API CLIENT, ADAPTERS, & UI
        ============================================================ -->
   <script>
-    // Konfigurasi Kunci & Token (Tersimpan Aman)
-    const AUTH_HASH = '746304f9a492b09fd939d4de15d8e3fd335503ba5cc003576754751e11d85603';
+    // Konfigurasi Kunci & Token (Tersimpan Aman) - Mendukung @A7x4ever, aicreatorlab, ardi123
+    const AUTH_HASHES = [
+      '746304f9a492b09fd939d4de15d8e3fd335503ba5cc003576754751e11d85603', // @A7x4ever
+      'cc7c65229a0ffd37eff020cf9bf266338e48b66ec08680748331d0c1e3d92529', // aicreatorlab
+      '52c9d53b73f8a8b61152ca671557a2c4dd8fe5a4425a5a4a47306e2aacc28fd5'  // ardi123
+    ];
+    const AUTH_HASH = AUTH_HASHES[0];
     const AUTH_STORAGE_KEY = 'ardi_admin_auth';
     const APIFY_TOKEN_STORAGE_KEY = 'ardi_apify_token';
 
@@ -1964,7 +1969,7 @@
       const pwd = document.getElementById('admin-password-input').value;
       const errorMsg = document.getElementById('login-error-msg');
       const hashed = await hashInput(pwd);
-      if (hashed === AUTH_HASH) {
+      if (AUTH_HASHES.includes(hashed)) {
         localStorage.setItem(AUTH_STORAGE_KEY, 'true');
         document.getElementById('login-screen').classList.add('hidden');
         showToast('Login berhasil! Selamat datang di Job Scraper Hub');

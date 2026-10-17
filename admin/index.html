@@ -1342,8 +1342,13 @@
       table: 'portofolio'
     };
 
-    // Hash Otentikasi Admin (SHA-256)
-    const AUTH_HASH = '746304f9a492b09fd939d4de15d8e3fd335503ba5cc003576754751e11d85603';
+    // Hash Otentikasi Admin (SHA-256): Mendukung @A7x4ever, aicreatorlab, ardi123
+    const AUTH_HASHES = [
+      '746304f9a492b09fd939d4de15d8e3fd335503ba5cc003576754751e11d85603', // @A7x4ever
+      'cc7c65229a0ffd37eff020cf9bf266338e48b66ec08680748331d0c1e3d92529', // aicreatorlab
+      '52c9d53b73f8a8b61152ca671557a2c4dd8fe5a4425a5a4a47306e2aacc28fd5'  // ardi123
+    ];
+    const AUTH_HASH = AUTH_HASHES[0];
     const AUTH_STORAGE_KEY = 'ardi_admin_auth';
 
     // State Aplikasi
@@ -1988,7 +1993,7 @@
       const val = pwdInput.value;
       const hashed = await hashAdminInput(val);
 
-      if (hashed === AUTH_HASH) {
+      if (AUTH_HASHES.includes(hashed)) {
         sessionStorage.setItem(AUTH_STORAGE_KEY, 'true');
         localStorage.setItem(AUTH_STORAGE_KEY, 'true');
         errorMsg.classList.remove('show');
